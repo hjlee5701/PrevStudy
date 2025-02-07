@@ -1,4 +1,4 @@
-package com.hanghae.prevstudy.board;
+package com.hanghae.prevstudy.domain.board;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
