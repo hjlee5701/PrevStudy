@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.Date;
 
 @Entity
 @NoArgsConstructor
@@ -21,5 +24,8 @@ public class Board {
     private String writer;
     private String content;
     private String password;
+
+    @CreationTimestamp
+    private Date regAt;
 
 }
