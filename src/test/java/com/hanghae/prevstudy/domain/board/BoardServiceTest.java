@@ -46,7 +46,7 @@ public class BoardServiceTest {
 
         // when
         BoardAddRequest requestBoardDto = new BoardAddRequest(board.getTitle(), board.getWriter(), board.getContent(), board.getPassword());
-        final BoardAddResponse savedBoard = boardService.add(requestBoardDto);
+        final BoardResponse savedBoard = boardService.add(requestBoardDto);
 
         // then
         assertThat(savedBoard).isNotNull();

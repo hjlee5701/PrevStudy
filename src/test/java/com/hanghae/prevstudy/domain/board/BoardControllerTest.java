@@ -63,8 +63,8 @@ public class BoardControllerTest {
     @Test
     @DisplayName("게시글_생성")
     void 게시글_생성() throws Exception {
-        BoardAddResponse boardAddResponse = BoardAddResponse.builder().build();
-        doReturn(boardAddResponse).when(boardService).add(any(BoardAddRequest.class));
+        BoardResponse boardResponse = BoardResponse.builder().build();
+        doReturn(boardResponse).when(boardService).add(any(BoardAddRequest.class));
         final ResultActions addResult = mockMvc.perform(
                 MockMvcRequestBuilders
                         .post(REQUEST_URL)

@@ -17,7 +17,7 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping
-    public ResponseEntity<BoardAddResponse> addBoard(@Valid @RequestBody BoardAddRequest boardAddRequest) {
+    public ResponseEntity<BoardResponse> addBoard(@Valid @RequestBody BoardAddRequest boardAddRequest) {
         return new ResponseEntity<>(boardService.add(boardAddRequest), HttpStatus.OK);
 
     }

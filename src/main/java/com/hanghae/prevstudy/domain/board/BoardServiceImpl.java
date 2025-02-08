@@ -10,7 +10,7 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
 
     @Override
-    public BoardAddResponse add(BoardAddRequest boardAddRequest) {
+    public BoardResponse add(BoardAddRequest boardAddRequest) {
         Board board = Board.builder()
                 .title(boardAddRequest.getTitle())
                 .writer(boardAddRequest.getWriter())
@@ -18,7 +18,7 @@ public class BoardServiceImpl implements BoardService {
                 .password(boardAddRequest.getPassword())
                 .build();
         Board savedBoard = boardRepository.save(board);
-        return BoardAddResponse.builder()
+        return BoardResponse.builder()
                 .title(savedBoard.getTitle())
                 .writer(savedBoard.getWriter())
                 .content(savedBoard.getContent())
