@@ -40,17 +40,17 @@ public class BoardServiceTest {
         // given
         assertThat(boardService).isNotNull();
 
-        doReturn(newBoard()).when(boardRepository).save(any(Board.class));
+        Board board = newBoard();
+        doReturn(board).when(boardRepository).save(any(Board.class));
 
         // when
-        Board requestBoard = newBoard();
-        final Board savedBoard = boardService.add(requestBoard);
+        BoardAddRequest requestBoardDto = new BoardAddRequest(board.getTitle(), board.getWriter(), board.getContent(), board.getPassword());
+        final BoardAddResponse savedBoard = boardService.add(requestBoardDto);
 
         // then
         assertThat(savedBoard).isNotNull();
-        assertThat(savedBoard.getId()).isEqualTo(1L);
-        assertThat(savedBoard.getTitle()).isEqualTo("제목");
-        assertThat(savedBoard.getContent()).isEqualTo("내용");
+        assertThat(savedBoard.getTitle()).isEqualTo(requestBoardDto.getTitle());
+        assertThat(savedBoard.getContent()).isEqualTo(requestBoardDto.getContent());
         verify(boardRepository, times(1)).save(any(Board.class));
     }
 }
