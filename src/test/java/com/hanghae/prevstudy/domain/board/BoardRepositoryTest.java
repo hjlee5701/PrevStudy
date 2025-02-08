@@ -25,7 +25,12 @@ public class BoardRepositoryTest {
     @Test
     @DisplayName("게시글_저장")
     void 게시글_저장() {
-        Board board = new Board("제목", "작성자", "내용", "비밀번호");
+        Board board = Board.builder()
+                .title("제목")
+                .writer("작성자")
+                .content("내용")
+                .password("비밀번호")
+                .build();
         Board newBoard = boardRepository.save(board);
         assertThat(board).isEqualTo(newBoard);
     }
