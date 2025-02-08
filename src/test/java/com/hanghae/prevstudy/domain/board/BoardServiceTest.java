@@ -9,16 +9,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 public class BoardServiceTest {
-    
+
     @Mock
     private BoardRepository boardRepository;
-    
+
     @InjectMocks
     private BoardServiceImpl boardService;
 
@@ -52,5 +53,16 @@ public class BoardServiceTest {
         assertThat(savedBoard.getTitle()).isEqualTo(requestBoardDto.getTitle());
         assertThat(savedBoard.getContent()).isEqualTo(requestBoardDto.getContent());
         verify(boardRepository, times(1)).save(any(Board.class));
+    }
+
+    @Test
+    @DisplayName("게시글_상세_조회")
+    void 게시글_상세_조회_실패() {
+        // given
+        Long notExistBoardId = 1L;
+        doReturn(Optional.of(newBoard())).when(boardRepository).findById(any(Long.class));
+
+        // when, then
+        assertThrows(PrevStudyException.class, () -> boardService.getBoard(notExistBoardId));
     }
 }
