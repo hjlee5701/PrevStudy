@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,10 +61,10 @@ public class BoardServiceTest {
     @DisplayName("게시글_상세_조회")
     void 게시글_상세_조회_실패() {
         // given
-        Long notExistBoardId = 1L;
-        doReturn(Optional.of(newBoard())).when(boardRepository).findById(any(Long.class));
+        doReturn(Optional.empty()).when(boardRepository).findById(any(Long.class));
 
         // when, then
-        assertThrows(PrevStudyException.class, () -> boardService.getBoard(notExistBoardId));
+        assertThrows(PrevStudyException.class, () -> boardService.getBoard(1L));
+
     }
 }
