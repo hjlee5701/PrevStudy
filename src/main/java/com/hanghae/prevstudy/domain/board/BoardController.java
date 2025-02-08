@@ -1,5 +1,6 @@
 package com.hanghae.prevstudy.domain.board;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping
-    public ResponseEntity<BoardAddResponse> addBoard(@RequestBody BoardAddRequest boardAddRequest) {
+    public ResponseEntity<BoardAddResponse> addBoard(@Valid @RequestBody BoardAddRequest boardAddRequest) {
         return new ResponseEntity<>(boardService.add(boardAddRequest), HttpStatus.OK);
 
     }
