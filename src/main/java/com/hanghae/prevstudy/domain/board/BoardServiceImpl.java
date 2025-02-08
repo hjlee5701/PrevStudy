@@ -5,6 +5,8 @@ import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -21,14 +23,25 @@ public class BoardServiceImpl implements BoardService {
                 .build();
         Board savedBoard = boardRepository.save(board);
         return BoardResponse.builder()
+                .boardId(savedBoard.getId())
                 .title(savedBoard.getTitle())
                 .writer(savedBoard.getWriter())
                 .content(savedBoard.getContent())
+                .regAt(savedBoard.getRegAt())
                 .build();
     }
 
     @Override
-    public BoardResponse getBoard(Long notExistBoardId) {
-        throw new PrevStudyException(BoardErrorCode.FAIL_GET_BOARD);
+    public BoardResponse getBoard(Long boardId) {
+        Board findBoard = boardRepository.findById(boardId)
+                .orElseThrow(() -> new PrevStudyException(BoardErrorCode.FAIL_GET_BOARD));
+
+        return BoardResponse.builder()
+                .boardId(findBoard.getId())
+                .title(findBoard.getTitle())
+                .writer(findBoard.getWriter())
+                .content(findBoard.getContent())
+                .regAt(findBoard.getRegAt())
+                .build();
     }
 }
