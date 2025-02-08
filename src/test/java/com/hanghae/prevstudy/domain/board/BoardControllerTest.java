@@ -2,6 +2,7 @@ package com.hanghae.prevstudy.domain.board;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae.prevstudy.global.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +35,9 @@ public class BoardControllerTest {
 
     @BeforeEach
     public void init() {
-        mockMvc = MockMvcBuilders.standaloneSetup(boardController)
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(boardController)
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
 
@@ -69,5 +73,27 @@ public class BoardControllerTest {
         );
         addResult.andExpect(status().is2xxSuccessful());
     }
+
+    @Test
+    void 게시글_생성_요청값_에러() throws Exception {
+        // given
+        ObjectMapper objectMapper = new ObjectMapper();
+        BoardAddRequest boardAddRequest = new BoardAddRequest(
+                "", "", "", ""
+        );
+        String json = objectMapper.writeValueAsString(boardAddRequest);
+
+        // when
+        ResultActions addResult = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(REQUEST_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json));
+
+        // then
+        addResult.andExpect(status().isBadRequest())
+                 .andExpect(jsonPath("$.title").value("제목을 입력해 주세요."));
+    }
+
 
 }
