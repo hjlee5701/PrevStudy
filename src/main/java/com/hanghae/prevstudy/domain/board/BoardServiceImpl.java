@@ -1,5 +1,7 @@
 package com.hanghae.prevstudy.domain.board;
 
+import com.hanghae.prevstudy.global.exception.BoardErrorCode;
+import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,5 +25,10 @@ public class BoardServiceImpl implements BoardService {
                 .writer(savedBoard.getWriter())
                 .content(savedBoard.getContent())
                 .build();
+    }
+
+    @Override
+    public BoardResponse getBoard(Long notExistBoardId) {
+        throw new PrevStudyException(BoardErrorCode.FAIL_GET_BOARD);
     }
 }

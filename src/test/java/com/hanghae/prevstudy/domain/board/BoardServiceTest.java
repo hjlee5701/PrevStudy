@@ -1,5 +1,6 @@
 package com.hanghae.prevstudy.domain.board;
 
+import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
