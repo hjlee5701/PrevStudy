@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class BoardControllerTest {
     private static final String REQUEST_URL = "/board";
 
+    @Mock
+    private BoardServiceImpl boardService;
     @InjectMocks
     private BoardController boardController;
 
@@ -57,7 +60,7 @@ public class BoardControllerTest {
     @DisplayName("게시글_생성")
     void 게시글_생성() throws Exception {
         BoardAddResponse boardAddResponse = BoardAddResponse.builder().build();
-        doReturn(boardAddResponse).when(boardController).addBoard(any(BoardAddRequest.class));
+        doReturn(boardAddResponse).when(boardService).add(any(BoardAddRequest.class));
         final ResultActions addResult = mockMvc.perform(
                 MockMvcRequestBuilders
                         .post(REQUEST_URL)
