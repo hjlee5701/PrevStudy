@@ -10,4 +10,6 @@ public interface BoardService {
     List<BoardResponse> getBoards();
 
     BoardResponse update(Long boardId, BoardUpdateRequest boardUpdateRequest);
+
+    void delete(Long boardId);
 }
