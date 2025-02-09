@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -38,7 +37,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public BoardResponse getBoard(Long boardId) {
         Board findBoard = boardRepository.findById(boardId)
-                .orElseThrow(() -> new PrevStudyException(BoardErrorCode.FAIL_GET_BOARD));
+                .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
 
         return BoardResponse.builder()
                 .boardId(findBoard.getId())
@@ -72,7 +71,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public BoardResponse update(Long boardId, BoardUpdateRequest boardUpdateRequest) {
         Board findBoard = boardRepository.findById(boardId)
-                .orElseThrow(() -> new PrevStudyException(BoardErrorCode.FAIL_GET_BOARD));
+                .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
 
         if ( !boardUpdateRequest.getPassword().equals(findBoard.getPassword()) ) {
             throw new PrevStudyException(BoardErrorCode.INVALID_PASSWORD);
