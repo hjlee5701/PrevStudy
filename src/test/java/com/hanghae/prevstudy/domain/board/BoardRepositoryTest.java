@@ -150,7 +150,7 @@ public class BoardRepositoryTest {
         Long deleteBoardId = savedBoard.getId();
 
         // when
-        boardRepository.deleteById(deleteBoardId);
+        boardRepository.delete(savedBoard);
         boardRepository.flush();
         
         // then
