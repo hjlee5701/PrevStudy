@@ -81,5 +81,19 @@ public class BoardRepositoryTest {
         assertThat(findAllBoards).isNotEmpty();
         assertThat(findAllBoards.size()).isEqualTo(3);
     }
+
+    @Test
+    @DisplayName("게시글_수정_실패")
+    void 게시글_수정_실패() {
+        // given
+        Long inValidBoardId = 999L;
+
+        // when
+        Optional<Board> board = boardRepository.findById(inValidBoardId);
+
+        // then
+        assertThat(board).isEmpty();
+    }
+
 }
 
