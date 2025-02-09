@@ -142,6 +142,21 @@ public class BoardRepositoryTest {
         assertThat(updatedBoard.getModAt()).isNotEqualTo(beforeUpdateAt);
     }
 
+    @Test
+    @DisplayName("게시글_삭제")
+    void 게시글_삭제() {
+        // given
+        Board savedBoard = boardRepository.save(newBoard());
+        Long deleteBoardId = savedBoard.getId();
+
+        // when
+        boardRepository.deleteById(deleteBoardId);
+        boardRepository.flush();
+        
+        // then
+        assertThat(boardRepository.existsById(deleteBoardId)).isFalse();
+    }
+
 
 }
 
