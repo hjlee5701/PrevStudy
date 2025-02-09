@@ -20,8 +20,8 @@ public class BoardController {
 
     }
 
-    @GetMapping
-    public ResponseEntity<BoardResponse> getBoard(@Param("boardId") Long boardId) {
+    @GetMapping("/{boardId}")
+    public ResponseEntity<BoardResponse> getBoard(@PathVariable("boardId") Long boardId) {
         return ResponseEntity.ok(boardService.getBoard(boardId));
     }
 }
