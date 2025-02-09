@@ -132,6 +132,31 @@ public class BoardServiceTest {
         verify(boardRepository, times(1)).findAll();
     }
 
+    @Test
+    @DisplayName("게시글 수정 실패 - 비밀번호 불일치")
+    void 게시글_비밀번호_불일치() {
+        // given
+        Long boardId = 1L;
+        Board board = newBoard(); // 올바른 비밀번호를 가진 게시글
+
+        doReturn(Optional.of(board)).when(boardRepository).findById(boardId);
+
+        BoardUpdateRequest boardUpdateRequest
+                = new BoardUpdateRequest("제목2", "내용2", "잘못된 비밀번호");
+
+        // when
+        PrevStudyException exception = assertThrows(PrevStudyException.class,
+                () -> boardService.update(boardId, boardUpdateRequest));
+
+        // then
+        assertThat(exception.getErrCode()).isEqualTo(BoardErrorCode.INVALID_PASSWORD.getErrCode());
+        assertThat(exception.getMessage()).isEqualTo(BoardErrorCode.INVALID_PASSWORD.getMessage());
+
+        verify(boardRepository, times(1)).findById(boardId);
+    }
+
+
+
 
 
 }
