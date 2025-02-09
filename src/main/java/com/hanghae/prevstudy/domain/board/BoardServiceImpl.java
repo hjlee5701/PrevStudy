@@ -94,5 +94,7 @@ public class BoardServiceImpl implements BoardService {
     public void delete(Long boardId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
+
+        boardRepository.delete(board);
     }
 }

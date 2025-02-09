@@ -200,4 +200,19 @@ public class BoardServiceTest {
         verify(boardRepository, times(1)).findById(any(Long.class));
     }
 
+    @Test
+    @DisplayName("게시글_삭제_성공")
+    void 게시글_삭제_성공() {
+        // given
+        Board board = newBoard();
+        Long deleteBoard = board.getId();
+        doReturn(Optional.of(board)).when(boardRepository).findById(any(Long.class));
+
+        // when
+        boardService.delete(deleteBoard);
+
+        // then
+        verify(boardRepository, times(1)).delete(board);
+    }
+
 }
