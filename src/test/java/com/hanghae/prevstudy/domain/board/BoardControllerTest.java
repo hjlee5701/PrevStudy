@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Date;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -95,27 +96,26 @@ public class BoardControllerTest {
 
         // then
         addResult.andExpect(status().isBadRequest())
-                 .andExpect(jsonPath("$.title").value("제목을 입력해 주세요."));
+                .andExpect(jsonPath("$.title").value("제목을 입력해 주세요."));
     }
 
     @Test
     @DisplayName("게시글_상세_조회_실패")
     void 게시글_상세_조회_실패() throws Exception {
         // given
-        Long boardId = 1L;
+        String boardId = "1";
 
-        // when
         doThrow(new PrevStudyException(BoardErrorCode.FAIL_GET_BOARD))
                 .when(boardService).getBoard(any(Long.class));
 
-        // then
+        // when
         ResultActions getBoardResult = mockMvc.perform(
                 MockMvcRequestBuilders
-                        .get(REQUEST_URL)
-                        .param("boardId", boardId.toString())
+                        .get(REQUEST_URL + "/" + boardId)
                         .contentType(MediaType.APPLICATION_JSON)
         );
 
+        // then
         getBoardResult
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BoardErrorCode.FAIL_GET_BOARD.getMessage()))
