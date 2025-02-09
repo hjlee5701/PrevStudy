@@ -110,7 +110,7 @@ public class BoardControllerTest {
         // given
         String boardId = "1";
 
-        doThrow(new PrevStudyException(BoardErrorCode.FAIL_GET_BOARD))
+        doThrow(new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND))
                 .when(boardService).getBoard(any(Long.class));
 
         // when
@@ -123,8 +123,8 @@ public class BoardControllerTest {
         // then
         getBoardResult
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(BoardErrorCode.FAIL_GET_BOARD.getMessage()))
-                .andExpect(jsonPath("$.errCode").value(BoardErrorCode.FAIL_GET_BOARD.getErrCode()));
+                .andExpect(jsonPath("$.message").value(BoardErrorCode.BOARD_NOT_FOUND.getMessage()))
+                .andExpect(jsonPath("$.errCode").value(BoardErrorCode.BOARD_NOT_FOUND.getErrCode()));
     }
 
     @Test

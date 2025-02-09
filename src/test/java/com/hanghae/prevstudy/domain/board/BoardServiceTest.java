@@ -74,8 +74,8 @@ public class BoardServiceTest {
         PrevStudyException exception = assertThrows(PrevStudyException.class,
                 () -> boardService.getBoard(invalidBoardId));
 
-        assertThat(BoardErrorCode.FAIL_GET_BOARD.getErrCode()).isEqualTo(exception.getErrCode());
-        assertThat(BoardErrorCode.FAIL_GET_BOARD.getMessage()).isEqualTo(exception.getMessage());
+        assertThat(BoardErrorCode.BOARD_NOT_FOUND.getErrCode()).isEqualTo(exception.getErrCode());
+        assertThat(BoardErrorCode.BOARD_NOT_FOUND.getMessage()).isEqualTo(exception.getMessage());
     }
 
     @Test
