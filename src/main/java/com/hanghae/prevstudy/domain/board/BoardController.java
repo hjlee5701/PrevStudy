@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/board")
@@ -23,5 +25,11 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponse> getBoard(@PathVariable("boardId") Long boardId) {
         return ResponseEntity.ok(boardService.getBoard(boardId));
+    }
+
+
+    @GetMapping
+    public ResponseEntity<List<BoardResponse>> getBoards() {
+        return ResponseEntity.ok(boardService.getBoards());
     }
 }

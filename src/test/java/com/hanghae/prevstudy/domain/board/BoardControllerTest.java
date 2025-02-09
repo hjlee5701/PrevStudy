@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Date;
+import java.util.List;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -122,6 +124,24 @@ public class BoardControllerTest {
                 .andExpect(jsonPath("$.errCode").value(BoardErrorCode.FAIL_GET_BOARD.getErrCode()));
     }
 
+    @Test
+    @DisplayName("게시글_전체_조회_성공")
+    void 게시글_전체_조회_성공() throws Exception {
+        // given
+        List<BoardResponse> boardResponses
+                = List.of(new BoardResponse(1L, "", "", "", new Date()));
 
+        doReturn(boardResponses).when(boardService).getBoards();
 
+        // when
+        ResultActions getBoardsResult = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(REQUEST_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        getBoardsResult
+                .andExpectAll(status().is2xxSuccessful());
+    }
 }
