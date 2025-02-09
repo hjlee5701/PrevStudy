@@ -1,5 +1,6 @@
 package com.hanghae.prevstudy.domain.board;
 
+import com.hanghae.prevstudy.global.exception.BoardErrorCode;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,11 +67,15 @@ public class BoardServiceTest {
     @DisplayName("게시글_상세_조회_실패")
     void 게시글_상세_조회_실패() {
         // given
-        doReturn(Optional.empty()).when(boardRepository).findById(any(Long.class));
+        Long invalidBoardId = 999L;
+        doReturn(Optional.empty()).when(boardRepository).findById(invalidBoardId);
 
         // when, then
-        assertThrows(PrevStudyException.class, () -> boardService.getBoard(1L));
+        PrevStudyException exception = assertThrows(PrevStudyException.class,
+                () -> boardService.getBoard(invalidBoardId));
 
+        assertThat(BoardErrorCode.FAIL_GET_BOARD.getErrCode()).isEqualTo(exception.getErrCode());
+        assertThat(BoardErrorCode.FAIL_GET_BOARD.getMessage()).isEqualTo(exception.getMessage());
     }
 
     @Test

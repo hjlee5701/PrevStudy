@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum BoardErrorCode implements ErrorCode {
-    FAIL_GET_BOARD("B001", "게시글 상세 조회 실패", HttpStatus.BAD_REQUEST)
+    FAIL_GET_BOARD("B001", "게시글이 존재하지 않습니다.", HttpStatus.BAD_REQUEST)
     ;
 
     private final String errCode;
