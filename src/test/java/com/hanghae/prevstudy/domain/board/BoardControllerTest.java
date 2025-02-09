@@ -162,7 +162,7 @@ public class BoardControllerTest {
 
 
         // when
-        ResultActions getBoardResult = mockMvc.perform(
+        ResultActions updateBoardResult = mockMvc.perform(
                 MockMvcRequestBuilders
                         .patch(REQUEST_URL + "/" + boardId)
                         .content(createRequestToJson(boardUpdateRequest))
@@ -170,9 +170,42 @@ public class BoardControllerTest {
         );
 
         // then
-        getBoardResult
+        updateBoardResult
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BoardErrorCode.INVALID_PASSWORD.getMessage()))
                 .andExpect(jsonPath("$.errCode").value(BoardErrorCode.INVALID_PASSWORD.getErrCode()));
+    }
+
+    @Test
+    @DisplayName("게시글_수정_성공")
+    void 게시글_수정_성공() throws Exception {
+        // given
+        Long boardId = 1L;
+        BoardUpdateRequest boardUpdateRequest
+                = new BoardUpdateRequest("제목2", "내용2", "비밀번호");
+
+        BoardResponse boardResponse = BoardResponse.builder()
+                .boardId(boardId)
+                .title(boardUpdateRequest.getTitle())
+                .writer("작성자")
+                .content(boardUpdateRequest.getContent())
+                .regAt(new Date())
+                .modAt(new Date())
+                .build();
+
+        doReturn(boardResponse).when(boardService).update(any(Long.class), any(BoardUpdateRequest.class));
+
+
+        // when
+        ResultActions updateBoardResult = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .patch(REQUEST_URL + "/" + boardId)
+                        .content(createRequestToJson(boardUpdateRequest))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        updateBoardResult
+                .andExpectAll(status().isOk());
     }
 }
