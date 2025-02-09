@@ -8,4 +8,6 @@ public interface BoardService {
     BoardResponse getBoard(Long boardId);
 
     List<BoardResponse> getBoards();
+
+    BoardResponse update(Long boardId, BoardUpdateRequest boardUpdateRequest);
 }

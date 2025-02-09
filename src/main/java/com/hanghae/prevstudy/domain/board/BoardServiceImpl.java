@@ -2,6 +2,7 @@ package com.hanghae.prevstudy.domain.board;
 
 import com.hanghae.prevstudy.global.exception.BoardErrorCode;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -65,5 +66,28 @@ public class BoardServiceImpl implements BoardService {
             boardResponses.add(response);
         }
         return boardResponses;
+    }
+
+    @Override
+    @Transactional
+    public BoardResponse update(Long boardId, BoardUpdateRequest boardUpdateRequest) {
+        Board findBoard = boardRepository.findById(boardId)
+                .orElseThrow(() -> new PrevStudyException(BoardErrorCode.FAIL_GET_BOARD));
+
+        if ( !boardUpdateRequest.getPassword().equals(findBoard.getPassword()) ) {
+            throw new PrevStudyException(BoardErrorCode.INVALID_PASSWORD);
+        }
+        findBoard.update(
+                boardUpdateRequest.getTitle(),
+                boardUpdateRequest.getContent()
+        );
+        return BoardResponse.builder()
+                .boardId(findBoard.getId())
+                .title(findBoard.getTitle())
+                .writer(findBoard.getWriter())
+                .content(findBoard.getContent())
+                .regAt(findBoard.getRegAt())
+                .modAt(findBoard.getModAt())
+                .build();
     }
 }
