@@ -5,6 +5,8 @@ import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -43,5 +45,22 @@ public class BoardServiceImpl implements BoardService {
                 .content(findBoard.getContent())
                 .regAt(findBoard.getRegAt())
                 .build();
+    }
+
+    @Override
+    public List<BoardResponse> getBoards() {
+        List<BoardResponse> boardResponses = new ArrayList<>();
+        List<Board> findBoards = boardRepository.findAll();
+        for (Board board : findBoards) {
+            BoardResponse response = BoardResponse.builder()
+                    .boardId(board.getId())
+                    .title(board.getTitle())
+                    .writer(board.getWriter())
+                    .content(board.getContent())
+                    .regAt(board.getRegAt())
+                    .build();
+            boardResponses.add(response);
+        }
+        return boardResponses;
     }
 }
