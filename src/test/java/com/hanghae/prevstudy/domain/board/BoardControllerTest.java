@@ -2,7 +2,9 @@ package com.hanghae.prevstudy.domain.board;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae.prevstudy.global.exception.BoardErrorCode;
 import com.hanghae.prevstudy.global.exception.GlobalExceptionHandler;
+import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -94,6 +97,31 @@ public class BoardControllerTest {
         addResult.andExpect(status().isBadRequest())
                  .andExpect(jsonPath("$.title").value("제목을 입력해 주세요."));
     }
+
+    @Test
+    @DisplayName("게시글_상세_조회_실패")
+    void 게시글_상세_조회_실패() throws Exception {
+        // given
+        Long boardId = 1L;
+
+        // when (boardService.getBoard 호출 시 예외 발생하도록 설정)
+        doThrow(new PrevStudyException(BoardErrorCode.FAIL_GET_BOARD))
+                .when(boardService).getBoard(any(Long.class));
+
+        // then (MockMvc를 이용한 검증)
+        ResultActions getBoardResult = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(REQUEST_URL)
+                        .param("boardId", boardId.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        getBoardResult
+                .andExpect(status().is2xxSuccessful())  // 적절한 에러 코드로 변경
+                .andExpect(jsonPath("$.message").value(BoardErrorCode.FAIL_GET_BOARD.getMessage()))
+                .andExpect(jsonPath("$.errCode").value(BoardErrorCode.FAIL_GET_BOARD.getErrCode()));
+    }
+
 
 
 }
