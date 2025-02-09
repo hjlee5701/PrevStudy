@@ -182,5 +182,22 @@ public class BoardServiceTest {
 
         verify(boardRepository, times(1)).findById(boardId);
     }
+    
+    @Test
+    @DisplayName("게시글_삭제_실패")
+    void 게시글_삭제_실패() {
+        // given
+        doReturn(Optional.empty()).when(boardRepository).findById(any(Long.class));
+
+        // when
+        PrevStudyException exception = assertThrows(PrevStudyException.class,
+                () -> boardService.delete(1L));
+
+        // then
+        assertThat(exception.getErrCode()).isEqualTo(BoardErrorCode.BOARD_NOT_FOUND.getErrCode());
+        assertThat(exception.getMessage()).isEqualTo(BoardErrorCode.BOARD_NOT_FOUND.getMessage());
+
+        verify(boardRepository, times(1)).findById(any(Long.class));
+    }
 
 }
