@@ -2,9 +2,8 @@ package com.hanghae.prevstudy.domain.board;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Date;
@@ -12,8 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -34,7 +31,6 @@ public class BoardRepositoryTest {
                 .writer("작성자")
                 .content("내용")
                 .password("비밀번호")
-                .regAt(new Date())
                 .build();
     }
 
@@ -119,5 +115,32 @@ public class BoardRepositoryTest {
         assertThat(updatedBoard.getTitle()).isEqualTo("제목2");
         assertThat(updatedBoard.getPassword()).isEqualTo("비밀번호2");
     }
+
+    @Test
+    @DisplayName("게시글_수정일자_업데이트")
+    void 게시글_수정일자_업데이트() {
+        // given
+        Board savedBoard = boardRepository.save(newBoard());
+        Long requestBoardId = savedBoard.getId();
+
+        Board boardUpdateBoard = boardRepository.findById(requestBoardId).orElse(null);
+        assertThat(boardUpdateBoard).isNotNull();
+
+        Date beforeUpdateAt = boardUpdateBoard.getModAt();
+
+        assertThat(beforeUpdateAt).isEqualTo(boardUpdateBoard.getRegAt()); // 최초 등록시간과 동일한지 확인
+
+        // when
+        boardUpdateBoard.update("제목2", "내용2", "비밀번호2"); // Dirty Checking 적용
+        boardRepository.flush();
+
+        Board updatedBoard = boardRepository.findById(requestBoardId).orElse(null);
+        assertThat(updatedBoard).isNotNull();
+
+        // then
+        assertThat(updatedBoard.getModAt()).isNotEqualTo(beforeUpdateAt);
+    }
+
+
 }
 

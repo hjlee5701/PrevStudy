@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 
@@ -27,6 +28,9 @@ public class Board {
 
     @CreationTimestamp
     private Date regAt;
+
+    @UpdateTimestamp
+    private Date modAt;
 
     public void update(String title, String content, String password) {
         this.title = title;
