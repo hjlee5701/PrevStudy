@@ -10,9 +10,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -91,6 +93,40 @@ public class BoardServiceTest {
 
         verify(boardRepository, times(1)).findById(boardId);
     }
+
+    @Test
+    @DisplayName("게시글_전체_조회_성공")
+    void 게시글_전체_조회_성공() {
+        // given
+        Board findBoard = newBoard();
+        List<Board> findBoards = List.of(findBoard, findBoard);
+
+        doReturn(findBoards).when(boardRepository).findAll();
+
+        // when
+        List<BoardResponse> findBoardsDto = boardService.getBoards();
+
+        // then
+        assertThat(findBoardsDto).isNotEmpty();
+        assertThat(findBoardsDto.size()).isEqualTo(2);
+
+        verify(boardRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("게시글_전체_조회_빈배열")
+    void 게시글_전체_조회_빈배열() {
+        // given
+        doReturn(List.of()).when(boardRepository).findAll();
+
+        // when
+        List<BoardResponse> findBoardsDto = boardService.getBoards();
+
+        // then
+        assertThat(findBoardsDto).isEmpty();
+        verify(boardRepository, times(1)).findAll();
+    }
+
 
 
 }
