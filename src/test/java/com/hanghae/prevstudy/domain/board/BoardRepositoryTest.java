@@ -50,11 +50,12 @@ public class BoardRepositoryTest {
         Board savedBoard = boardRepository.save(board);
 
         // when
-        Optional<Board> findBoard = boardRepository.findById(1L);
+        Optional<Board> findBoard = boardRepository.findById(savedBoard.getId());
 
         // then
-        assertThat(findBoard).isNotNull();
-        assertThat(findBoard.get().getId()).isEqualTo(1L);
+        assertThat(findBoard).isNotEmpty();
+
+        assertThat(findBoard.get().getId()).isEqualTo(savedBoard.getId());
         assertThat(findBoard.get().getContent()).isEqualTo(savedBoard.getContent());
     }
 
