@@ -16,4 +16,5 @@ public class BoardResponse {
     private final String writer;
     private final String content;
     private final Date regAt;
+    private final Date modAt;
 }
