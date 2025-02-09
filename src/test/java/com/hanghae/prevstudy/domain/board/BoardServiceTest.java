@@ -155,8 +155,32 @@ public class BoardServiceTest {
         verify(boardRepository, times(1)).findById(boardId);
     }
 
+    @Test
+    @DisplayName("게시글 수정 성공")
+    void 게시글_수정_성공() {
+        // given
+        Long boardId = 1L;
+        Board board = newBoard();
+        String notUpdateTitle = board.getTitle();
+        String notUpdateContent = board.getContent();
 
+        BoardUpdateRequest boardUpdateRequest
+                = new BoardUpdateRequest("제목2", "내용2", board.getPassword());
 
+        doReturn(Optional.of(board)).when(boardRepository).findById(boardId);
 
+        // when
+        BoardResponse boardResponse = boardService.update(boardId, boardUpdateRequest);
+
+        // then
+        assertThat(boardResponse.getBoardId()).isEqualTo(board.getId());
+        assertThat(boardResponse.getTitle()).isEqualTo(boardUpdateRequest.getTitle());
+        assertThat(boardResponse.getContent()).isEqualTo(boardUpdateRequest.getContent());
+
+        assertThat(boardResponse.getTitle()).isNotEqualTo(notUpdateTitle);
+        assertThat(boardResponse.getContent()).isNotEqualTo(notUpdateContent);
+
+        verify(boardRepository, times(1)).findById(boardId);
+    }
 
 }
