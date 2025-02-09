@@ -106,14 +106,14 @@ public class BoardRepositoryTest {
         assertThat(findBoard.get().getPassword()).isEqualTo("비밀번호");
 
         // when
-        findBoard.get().update("제목2", "내용2", "비밀번호2");
+        findBoard.get().update("제목2", "내용2");
 
         // then
         Board updatedBoard = boardRepository.findById(requestBoardId).orElseThrow();
 
         assertThat(updatedBoard.getId()).isEqualTo(savedBoard.getId()); // ID 검증
         assertThat(updatedBoard.getTitle()).isEqualTo("제목2");
-        assertThat(updatedBoard.getPassword()).isEqualTo("비밀번호2");
+        assertThat(updatedBoard.getContent()).isEqualTo("내용2");
     }
 
     @Test
@@ -131,7 +131,7 @@ public class BoardRepositoryTest {
         assertThat(beforeUpdateAt).isEqualTo(boardUpdateBoard.getRegAt()); // 최초 등록시간과 동일한지 확인
 
         // when
-        boardUpdateBoard.update("제목2", "내용2", "비밀번호2"); // Dirty Checking 적용
+        boardUpdateBoard.update("제목2", "내용2"); // Dirty Checking 적용
         boardRepository.flush();
 
         Board updatedBoard = boardRepository.findById(requestBoardId).orElse(null);

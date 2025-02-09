@@ -32,9 +32,8 @@ public class Board {
     @UpdateTimestamp
     private Date modAt;
 
-    public void update(String title, String content, String password) {
+    public void update(String title, String content) {
         this.title = title;
         this.content = content;
-        this.password = password;
     }
 }
