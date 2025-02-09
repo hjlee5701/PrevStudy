@@ -129,7 +129,7 @@ public class BoardControllerTest {
     void 게시글_전체_조회_성공() throws Exception {
         // given
         List<BoardResponse> boardResponses
-                = List.of(new BoardResponse(1L, "", "", "", new Date()));
+                = List.of(new BoardResponse(1L, "", "", "", new Date(), new Date()));
 
         doReturn(boardResponses).when(boardService).getBoards();
 

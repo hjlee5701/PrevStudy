@@ -30,6 +30,7 @@ public class BoardServiceImpl implements BoardService {
                 .writer(savedBoard.getWriter())
                 .content(savedBoard.getContent())
                 .regAt(savedBoard.getRegAt())
+                .modAt(savedBoard.getModAt())
                 .build();
     }
 
@@ -44,6 +45,7 @@ public class BoardServiceImpl implements BoardService {
                 .writer(findBoard.getWriter())
                 .content(findBoard.getContent())
                 .regAt(findBoard.getRegAt())
+                .modAt(findBoard.getModAt())
                 .build();
     }
 
@@ -58,6 +60,7 @@ public class BoardServiceImpl implements BoardService {
                     .writer(board.getWriter())
                     .content(board.getContent())
                     .regAt(board.getRegAt())
+                    .modAt(board.getModAt())
                     .build();
             boardResponses.add(response);
         }
