@@ -28,4 +28,9 @@ public class Board {
     @CreationTimestamp
     private Date regAt;
 
+    public void update(String title, String content, String password) {
+        this.title = title;
+        this.content = content;
+        this.password = password;
+    }
 }

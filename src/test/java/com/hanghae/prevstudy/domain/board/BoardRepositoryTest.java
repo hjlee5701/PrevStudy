@@ -37,6 +37,7 @@ public class BoardRepositoryTest {
                 .regAt(new Date())
                 .build();
     }
+
     @Test
     @DisplayName("게시글_저장")
     void 게시글_저장() {
@@ -95,5 +96,28 @@ public class BoardRepositoryTest {
         assertThat(board).isEmpty();
     }
 
+    @Test
+    void 게시글_수정_성공() {
+        // given
+        Board savedBoard = boardRepository.save(newBoard());
+        Long requestBoardId = savedBoard.getId();
+
+        Optional<Board> findBoard = boardRepository.findById(requestBoardId);
+        assertThat(findBoard).isNotEmpty();
+
+        assertThat(findBoard.get().getId()).isEqualTo(savedBoard.getId()); // ID 검증
+        assertThat(findBoard.get().getTitle()).isEqualTo("제목");
+        assertThat(findBoard.get().getPassword()).isEqualTo("비밀번호");
+
+        // when
+        findBoard.get().update("제목2", "내용2", "비밀번호2");
+
+        // then
+        Board updatedBoard = boardRepository.findById(requestBoardId).orElseThrow();
+
+        assertThat(updatedBoard.getId()).isEqualTo(savedBoard.getId()); // ID 검증
+        assertThat(updatedBoard.getTitle()).isEqualTo("제목2");
+        assertThat(updatedBoard.getPassword()).isEqualTo("비밀번호2");
+    }
 }
 
