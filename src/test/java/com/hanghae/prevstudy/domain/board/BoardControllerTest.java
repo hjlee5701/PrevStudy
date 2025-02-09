@@ -147,4 +147,32 @@ public class BoardControllerTest {
         getBoardsResult
                 .andExpectAll(status().is2xxSuccessful());
     }
+
+
+    @Test
+    @DisplayName("게시글_수정_실패 - 비밀번호 불일치")
+    void 게시글_수정_실패() throws Exception {
+        // given
+        Long boardId = 1L;
+        BoardUpdateRequest boardUpdateRequest
+                = new BoardUpdateRequest("제목2", "내용2", "비밀번호2");
+
+        doThrow(new PrevStudyException(BoardErrorCode.INVALID_PASSWORD))
+                .when(boardService).update(any(Long.class), any(BoardUpdateRequest.class));
+
+
+        // when
+        ResultActions getBoardResult = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .patch(REQUEST_URL + "/" + boardId)
+                        .content(createRequestToJson(boardUpdateRequest))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        getBoardResult
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(BoardErrorCode.INVALID_PASSWORD.getMessage()))
+                .andExpect(jsonPath("$.errCode").value(BoardErrorCode.INVALID_PASSWORD.getErrCode()));
+    }
 }

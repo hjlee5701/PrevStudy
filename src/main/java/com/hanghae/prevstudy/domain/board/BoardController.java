@@ -32,4 +32,11 @@ public class BoardController {
     public ResponseEntity<List<BoardResponse>> getBoards() {
         return ResponseEntity.ok(boardService.getBoards());
     }
+
+    @PatchMapping("/{boardId}")
+    public ResponseEntity<BoardResponse> updateBoard(
+            @PathVariable("boardId") Long boardId,
+            @Valid @RequestBody BoardUpdateRequest boardUpdateRequest) {
+        return ResponseEntity.ok(boardService.update(boardId, boardUpdateRequest));
+    }
 }
