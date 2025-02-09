@@ -9,7 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Date;
 import java.util.Optional;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,6 +34,7 @@ public class BoardServiceTest {
                 .writer("작성자")
                 .content("내용")
                 .password("비밀번호")
+                .regAt(new Date())
                 .build();
     }
 
@@ -58,7 +61,7 @@ public class BoardServiceTest {
     }
 
     @Test
-    @DisplayName("게시글_상세_조회")
+    @DisplayName("게시글_상세_조회_실패")
     void 게시글_상세_조회_실패() {
         // given
         doReturn(Optional.empty()).when(boardRepository).findById(any(Long.class));
@@ -67,4 +70,27 @@ public class BoardServiceTest {
         assertThrows(PrevStudyException.class, () -> boardService.getBoard(1L));
 
     }
+
+    @Test
+    @DisplayName("게시글_상세_조회_성공")
+    void 게시글_상세_조회_성공() {
+        // given
+        Board targetBoard = newBoard();
+        Long boardId = targetBoard.getId();
+
+        doReturn(Optional.of(targetBoard)).when(boardRepository).findById(boardId);
+
+        // when
+        BoardResponse findBoardDto = boardService.getBoard(boardId);
+
+        // then
+        assertThat(findBoardDto).isNotNull();
+        assertThat(findBoardDto.getBoardId()).isEqualTo(targetBoard.getId());
+        assertThat(findBoardDto.getTitle()).isEqualTo(targetBoard.getTitle());
+        assertThat(findBoardDto.getContent()).isEqualTo(targetBoard.getContent());
+
+        verify(boardRepository, times(1)).findById(boardId);
+    }
+
+
 }
