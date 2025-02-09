@@ -104,11 +104,11 @@ public class BoardControllerTest {
         // given
         Long boardId = 1L;
 
-        // when (boardService.getBoard 호출 시 예외 발생하도록 설정)
+        // when
         doThrow(new PrevStudyException(BoardErrorCode.FAIL_GET_BOARD))
                 .when(boardService).getBoard(any(Long.class));
 
-        // then (MockMvc를 이용한 검증)
+        // then
         ResultActions getBoardResult = mockMvc.perform(
                 MockMvcRequestBuilders
                         .get(REQUEST_URL)
@@ -117,7 +117,7 @@ public class BoardControllerTest {
         );
 
         getBoardResult
-                .andExpect(status().is2xxSuccessful())  // 적절한 에러 코드로 변경
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BoardErrorCode.FAIL_GET_BOARD.getMessage()))
                 .andExpect(jsonPath("$.errCode").value(BoardErrorCode.FAIL_GET_BOARD.getErrCode()));
     }
