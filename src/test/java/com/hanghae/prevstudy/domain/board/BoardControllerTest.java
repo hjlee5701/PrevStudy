@@ -1,6 +1,8 @@
 package com.hanghae.prevstudy.domain.board;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae.prevstudy.global.exception.BoardErrorCode;
 import com.hanghae.prevstudy.global.exception.GlobalExceptionHandler;
@@ -39,6 +41,18 @@ public class BoardControllerTest {
 
     private MockMvc mockMvc;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    private <T> String createRequestToJson(T boardRequest) {
+        try {
+            return objectMapper.writeValueAsString(boardRequest);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON 직렬화 실패", e);
+        }
+    }
+
     @BeforeEach
     public void init() {
         mockMvc = MockMvcBuilders
@@ -54,17 +68,6 @@ public class BoardControllerTest {
         assertThat(mockMvc).isNotNull();
     }
 
-    private String createAddRequestJson() {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            BoardAddRequest boardAddRequest = new BoardAddRequest(
-                    "제목", "작성자", "내용", "비밀번호"
-            );
-            return objectMapper.writeValueAsString(boardAddRequest);
-        } catch (JsonProcessingException e) {
-            return "{}";
-        }
-    }
 
     @Test
     @DisplayName("게시글_생성")
@@ -75,7 +78,9 @@ public class BoardControllerTest {
                 MockMvcRequestBuilders
                         .post(REQUEST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(createAddRequestJson())
+                        .content(createRequestToJson(new BoardAddRequest(
+                                "제목", "작성자", "내용", "비밀번호"
+                        )))
         );
         addResult.andExpect(status().is2xxSuccessful());
     }
@@ -83,11 +88,9 @@ public class BoardControllerTest {
     @Test
     void 게시글_생성_요청값_에러() throws Exception {
         // given
-        ObjectMapper objectMapper = new ObjectMapper();
-        BoardAddRequest boardAddRequest = new BoardAddRequest(
-                "", "", "", ""
+        String json = createRequestToJson(
+                new BoardAddRequest("", "", "", "")
         );
-        String json = objectMapper.writeValueAsString(boardAddRequest);
 
         // when
         ResultActions addResult = mockMvc.perform(
