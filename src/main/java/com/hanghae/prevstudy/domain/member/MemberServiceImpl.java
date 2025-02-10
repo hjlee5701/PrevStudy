@@ -9,10 +9,26 @@ import org.springframework.stereotype.Service;
 @Service
 public class MemberServiceImpl implements MemberService {
 
+    private final MemberRepository memberRepository;
+
     @Override
     @Transactional
     public void signup(MemberAddRequest memberAddRequest) {
-        throw new PrevStudyException(MemberErrorCode.DUPLICATE_USERNAME);
+
+        if (isDuplicateUsername(memberAddRequest.getUsername())) {
+            throw new PrevStudyException(MemberErrorCode.DUPLICATE_USERNAME);
+        }
+
+        Member newMember = Member.builder()
+                .username(memberAddRequest.getUsername())
+                .password(memberAddRequest.getPassword())
+                .build();
+
+        memberRepository.save(newMember);
+    }
+
+    private boolean isDuplicateUsername(String username) {
+        return memberRepository.findByUsername(username).isPresent();
     }
 
 }
