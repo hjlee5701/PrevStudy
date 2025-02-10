@@ -8,6 +8,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -45,6 +46,23 @@ public class MemberRepositoryTest {
 
         // then
         assertThrows(DataAccessException.class, () -> memberRepository.flush());
+    }
+
+    @Test
+    @DisplayName("회원_가입_성공")
+    void 회원_가입_성공() {
+        // given
+        Member signUpMember = Member.builder()
+                .username("회원")
+                .password("비밀번호")
+                .build();
+
+        // when
+        memberRepository.save(signUpMember);
+
+        // then
+        assertDoesNotThrow(() -> memberRepository.flush());
+        assertThat(memberRepository.findById(1L)).isNotEmpty();
     }
 
 
