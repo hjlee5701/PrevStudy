@@ -73,7 +73,8 @@ public class BoardServiceImpl implements BoardService {
         Board findBoard = boardRepository.findById(boardId)
                 .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
 
-        if ( !boardUpdateRequest.getPassword().equals(findBoard.getPassword()) ) {
+        String findBoardPassword = findBoard.getPassword();
+        if (!isPasswordMatch(findBoardPassword, boardUpdateRequest.getPassword())) {
             throw new PrevStudyException(BoardErrorCode.INVALID_PASSWORD);
         }
         findBoard.update(
@@ -88,6 +89,10 @@ public class BoardServiceImpl implements BoardService {
                 .regAt(findBoard.getRegAt())
                 .modAt(findBoard.getModAt())
                 .build();
+    }
+
+    public boolean isPasswordMatch(String findBoardPassword, String updateRequestPassword) {
+        return findBoardPassword.equals(updateRequestPassword);
     }
 
     @Override

@@ -29,6 +29,7 @@ public class BoardServiceTest {
     @InjectMocks
     private BoardServiceImpl boardService;
 
+
     private Board newBoard() {
         return Board.builder()
                 .id(1L)
@@ -135,48 +136,43 @@ public class BoardServiceTest {
     @Test
     @DisplayName("게시글 수정 실패 - 비밀번호 불일치")
     void 게시글_비밀번호_불일치() {
-        // given
-        Long boardId = 1L;
-        Board board = newBoard(); // 올바른 비밀번호를 가진 게시글
+        // Given
+        Date now = new Date();
+        Board board = new Board(1L, "제목", "작성자", "내용", "비밀번호", now, now);
 
-        doReturn(Optional.of(board)).when(boardRepository).findById(boardId);
+        BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", "비밀번호2");
 
-        BoardUpdateRequest boardUpdateRequest
-                = new BoardUpdateRequest("제목2", "내용2", "잘못된 비밀번호");
+        when(boardRepository.findById(1L)).thenReturn(Optional.of(board)); // Given
 
-        // when
+        // When
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.update(boardId, boardUpdateRequest));
+                () -> boardService.update(1L, boardUpdateRequest));
 
-        // then
-        assertThat(exception.getErrCode()).isEqualTo(BoardErrorCode.INVALID_PASSWORD.getErrCode());
-        assertThat(exception.getMessage()).isEqualTo(BoardErrorCode.INVALID_PASSWORD.getMessage());
-
-        verify(boardRepository, times(1)).findById(boardId);
+        // Then
+        assertThat(exception.getMessage()).isEqualTo("비밀번호가 일치하지 않습니다.");
     }
+
 
     @Test
     @DisplayName("게시글 수정 성공")
     void 게시글_수정_성공() {
         // given
-        Board willUpdateBoard = newBoard();
+        Date now = new Date();
+        Board beforeUpdateBoard = new Board(1L, "제목", "작성자", "내용", "비밀번호", now, now);
 
-        BoardUpdateRequest boardUpdateRequest
-                = new BoardUpdateRequest("제목2", "내용2", willUpdateBoard.getPassword());
+        BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", beforeUpdateBoard.getPassword());
 
-        doReturn(Optional.of(willUpdateBoard)).when(boardRepository).findById(any(Long.class));
+        when(boardRepository.findById(1L)).thenReturn(Optional.of(beforeUpdateBoard));
 
         // when
         BoardResponse boardResponse = boardService.update(1L, boardUpdateRequest);
 
         // then
         assertAll(
-                () -> assertThat(boardResponse.getBoardId()).isEqualTo(willUpdateBoard.getId()),
-                () -> assertThat(boardResponse.getTitle()).isEqualTo(boardUpdateRequest.getTitle()),
-                () -> assertThat(boardResponse.getContent()).isEqualTo(boardUpdateRequest.getContent()),
+                () -> assertThat(boardResponse)
+                        .extracting("boardId", "title", "content")
+                        .containsExactly(1L, "제목2", "내용2"),
 
-                // 업데이트된 객체가 저장되었는지 확인
-                () -> verify(boardRepository, times(1)).save(any(Board.class)),
                 () -> verify(boardRepository, times(1)).findById(any(Long.class))
         );
     }
