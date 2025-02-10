@@ -47,20 +47,20 @@ public class BoardServiceTest {
     void 게시글_생성() {
 
         // given
-        assertThat(boardService).isNotNull();
-
-        Board board = newBoard();
-        doReturn(board).when(boardRepository).save(any(Board.class));
+        Date now = new Date();
+        Board newBoard
+                = new Board(1L, "제목", "작성자", "내용", "비밀번호", now, now);
+        when(boardRepository.save(any(Board.class))).thenReturn(newBoard);
 
         // when
-        BoardAddRequest requestBoardDto = new BoardAddRequest(board.getTitle(), board.getWriter(), board.getContent(), board.getPassword());
-        final BoardResponse savedBoard = boardService.add(requestBoardDto);
+        BoardAddRequest requestBoardDto = new BoardAddRequest("제목", "작성자", "내용", "비밀번호");
+        final BoardResponse boardResponseDto = boardService.add(requestBoardDto);
 
         // then
-        assertThat(savedBoard).isNotNull();
-        assertThat(savedBoard.getTitle()).isEqualTo(requestBoardDto.getTitle());
-        assertThat(savedBoard.getContent()).isEqualTo(requestBoardDto.getContent());
-        verify(boardRepository, times(1)).save(any(Board.class));
+        assertThat(boardResponseDto).isNotNull();
+        assertThat(boardResponseDto)
+                .extracting("boardId", "title", "writer", "content")
+                .containsExactly(newBoard.getId(), newBoard.getTitle(), newBoard.getWriter(), newBoard.getContent());
     }
 
     @Test
