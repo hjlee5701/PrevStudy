@@ -29,7 +29,6 @@ public class BoardServiceTest {
     @InjectMocks
     private BoardServiceImpl boardService;
 
-
     private Board newBoard() {
         return Board.builder()
                 .id(1L)
