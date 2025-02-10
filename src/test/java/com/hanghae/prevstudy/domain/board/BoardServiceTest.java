@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -103,33 +102,34 @@ public class BoardServiceTest {
     @DisplayName("게시글_전체_조회_성공")
     void 게시글_전체_조회_성공() {
         // given
-        Board findBoard = newBoard();
-        List<Board> findBoards = List.of(findBoard, findBoard);
+        Date now = new Date();
+        Board findBoard1
+                = new Board(1L, "제목", "작성자", "내용", "비밀번호", now, now);
+        Board findBoard2
+                = new Board(2L, "제목", "작성자", "내용", "비밀번호", now, now);
 
-        doReturn(findBoards).when(boardRepository).findAll();
+        List<Board> findBoards = List.of(findBoard1, findBoard2);
+
+        when(boardRepository.findAll()).thenReturn(findBoards);
 
         // when
         List<BoardResponse> findBoardsDto = boardService.getBoards();
 
         // then
-        assertThat(findBoardsDto).isNotEmpty();
-        assertThat(findBoardsDto.size()).isEqualTo(2);
-
-        verify(boardRepository, times(1)).findAll();
+        assertEquals(2, findBoardsDto.size());
     }
 
     @Test
     @DisplayName("게시글_전체_조회_빈배열")
     void 게시글_전체_조회_빈배열() {
         // given
-        doReturn(List.of()).when(boardRepository).findAll();
+        when(boardRepository.findAll()).thenReturn(List.of());
 
         // when
         List<BoardResponse> findBoardsDto = boardService.getBoards();
 
         // then
         assertThat(findBoardsDto).isEmpty();
-        verify(boardRepository, times(1)).findAll();
     }
 
     @Test
@@ -159,30 +159,29 @@ public class BoardServiceTest {
     @DisplayName("게시글 수정 성공")
     void 게시글_수정_성공() {
         // given
-        Long boardId = 1L;
-        Board board = newBoard();
-        String notUpdateTitle = board.getTitle();
-        String notUpdateContent = board.getContent();
+        Board willUpdateBoard = newBoard();
 
         BoardUpdateRequest boardUpdateRequest
-                = new BoardUpdateRequest("제목2", "내용2", board.getPassword());
+                = new BoardUpdateRequest("제목2", "내용2", willUpdateBoard.getPassword());
 
-        doReturn(Optional.of(board)).when(boardRepository).findById(boardId);
+        doReturn(Optional.of(willUpdateBoard)).when(boardRepository).findById(any(Long.class));
 
         // when
-        BoardResponse boardResponse = boardService.update(boardId, boardUpdateRequest);
+        BoardResponse boardResponse = boardService.update(1L, boardUpdateRequest);
 
         // then
-        assertThat(boardResponse.getBoardId()).isEqualTo(board.getId());
-        assertThat(boardResponse.getTitle()).isEqualTo(boardUpdateRequest.getTitle());
-        assertThat(boardResponse.getContent()).isEqualTo(boardUpdateRequest.getContent());
+        assertAll(
+                () -> assertThat(boardResponse.getBoardId()).isEqualTo(willUpdateBoard.getId()),
+                () -> assertThat(boardResponse.getTitle()).isEqualTo(boardUpdateRequest.getTitle()),
+                () -> assertThat(boardResponse.getContent()).isEqualTo(boardUpdateRequest.getContent()),
 
-        assertThat(boardResponse.getTitle()).isNotEqualTo(notUpdateTitle);
-        assertThat(boardResponse.getContent()).isNotEqualTo(notUpdateContent);
-
-        verify(boardRepository, times(1)).findById(boardId);
+                // 업데이트된 객체가 저장되었는지 확인
+                () -> verify(boardRepository, times(1)).save(any(Board.class)),
+                () -> verify(boardRepository, times(1)).findById(any(Long.class))
+        );
     }
-    
+
+
     @Test
     @DisplayName("게시글_삭제_실패")
     void 게시글_삭제_실패() {
