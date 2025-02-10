@@ -65,5 +65,20 @@ public class MemberRepositoryTest {
         assertThat(memberRepository.findById(1L)).isNotEmpty();
     }
 
+    @Test
+    @DisplayName("username_중복여부_조회")
+    void username_중복여부_조회() {
+        // given
+        Member signUpMember = Member.builder()
+                .username("가입 회원")
+                .password("비밀번호")
+                .build();
 
+        memberRepository.save(signUpMember);
+        memberRepository.flush();
+
+        // when
+        assertThat(memberRepository.findByUsername("가입 회원")).isNotEmpty();
+        assertThat(memberRepository.findByUsername("미가입 회원")).isEmpty();
+    }
 }
