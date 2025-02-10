@@ -39,4 +39,10 @@ public class BoardController {
             @Valid @RequestBody BoardUpdateRequest boardUpdateRequest) {
         return ResponseEntity.ok(boardService.update(boardId, boardUpdateRequest));
     }
+
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<String> deleteBoard(@PathVariable("boardId") Long boardId) {
+        boardService.delete(boardId);
+        return ResponseEntity.ok("게시글 삭제 완료");
+    }
 }

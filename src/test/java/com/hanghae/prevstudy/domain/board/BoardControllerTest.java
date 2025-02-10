@@ -25,8 +25,7 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -82,7 +81,7 @@ public class BoardControllerTest {
                                 "제목", "작성자", "내용", "비밀번호"
                         )))
         );
-        addResult.andExpect(status().is2xxSuccessful());
+        addResult.andExpect(status().isOk());
     }
 
     @Test
@@ -145,7 +144,7 @@ public class BoardControllerTest {
 
         // then
         getBoardsResult
-                .andExpectAll(status().is2xxSuccessful());
+                .andExpectAll(status().isOk());
     }
 
 
@@ -208,4 +207,23 @@ public class BoardControllerTest {
         updateBoardResult
                 .andExpectAll(status().isOk());
     }
+
+    @Test
+    @DisplayName("게시글_삭제")
+    void 게시글_삭제() throws Exception {
+        // given
+        Long boardId = 1L;
+
+        // when
+        ResultActions getBoardsResult = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .delete(REQUEST_URL + "/" + boardId)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        getBoardsResult
+                .andExpectAll(status().isOk());
+    }
+    
+    
 }
