@@ -1,4 +1,4 @@
-package com.hanghae.prevstudy.domain.board;
+package com.hanghae.prevstudy.domain.board.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

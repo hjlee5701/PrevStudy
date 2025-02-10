@@ -1,5 +1,6 @@
 package com.hanghae.prevstudy.global.exception;
 
+import com.hanghae.prevstudy.domain.board.exception.BoardErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 

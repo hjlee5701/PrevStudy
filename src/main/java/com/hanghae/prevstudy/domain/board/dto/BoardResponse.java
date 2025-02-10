@@ -1,4 +1,4 @@
-package com.hanghae.prevstudy.domain.board;
+package com.hanghae.prevstudy.domain.board.dto;
 
 import lombok.Builder;
 import lombok.Getter;

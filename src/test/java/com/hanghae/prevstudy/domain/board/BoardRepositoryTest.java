@@ -1,5 +1,7 @@
 package com.hanghae.prevstudy.domain.board;
 
+import com.hanghae.prevstudy.domain.board.entity.Board;
+import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

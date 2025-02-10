@@ -1,4 +1,8 @@
-package com.hanghae.prevstudy.domain.board;
+package com.hanghae.prevstudy.domain.board.service;
+
+import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
+import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
+import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 
 import java.util.List;
 

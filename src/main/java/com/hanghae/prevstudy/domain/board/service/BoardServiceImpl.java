@@ -1,6 +1,11 @@
-package com.hanghae.prevstudy.domain.board;
+package com.hanghae.prevstudy.domain.board.service;
 
-import com.hanghae.prevstudy.global.exception.BoardErrorCode;
+import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
+import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
+import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
+import com.hanghae.prevstudy.domain.board.entity.Board;
+import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
+import com.hanghae.prevstudy.domain.board.exception.BoardErrorCode;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

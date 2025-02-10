@@ -1,9 +1,11 @@
-package com.hanghae.prevstudy.domain.board;
+package com.hanghae.prevstudy.domain.board.controller;
 
+import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
+import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
+import com.hanghae.prevstudy.domain.board.service.BoardService;
+import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
