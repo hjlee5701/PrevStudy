@@ -67,36 +67,36 @@ public class BoardServiceTest {
     @DisplayName("게시글_상세_조회_실패")
     void 게시글_상세_조회_실패() {
         // given
-        Long invalidBoardId = 999L;
-        doReturn(Optional.empty()).when(boardRepository).findById(invalidBoardId);
+        when(boardRepository.findById(999L)).thenReturn(Optional.empty());
 
         // when, then
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.getBoard(invalidBoardId));
+                () -> boardService.getBoard(999L));
 
-        assertThat(BoardErrorCode.BOARD_NOT_FOUND.getErrCode()).isEqualTo(exception.getErrCode());
-        assertThat(BoardErrorCode.BOARD_NOT_FOUND.getMessage()).isEqualTo(exception.getMessage());
+        assertThat(exception)
+                .extracting("errCode")
+                .isEqualTo(BoardErrorCode.BOARD_NOT_FOUND.getErrCode());
     }
 
     @Test
     @DisplayName("게시글_상세_조회_성공")
     void 게시글_상세_조회_성공() {
         // given
-        Board targetBoard = newBoard();
-        Long boardId = targetBoard.getId();
+        Date now = new Date();
+        Board savedBoard
+                = new Board(1L, "제목", "작성자", "내용", "비밀번호", now, now);
 
-        doReturn(Optional.of(targetBoard)).when(boardRepository).findById(boardId);
+        when(boardRepository.findById(1L)).thenReturn(Optional.of(savedBoard));
 
         // when
-        BoardResponse findBoardDto = boardService.getBoard(boardId);
+        BoardResponse findBoardDto = boardService.getBoard(1L);
 
         // then
-        assertThat(findBoardDto).isNotNull();
-        assertThat(findBoardDto.getBoardId()).isEqualTo(targetBoard.getId());
-        assertThat(findBoardDto.getTitle()).isEqualTo(targetBoard.getTitle());
-        assertThat(findBoardDto.getContent()).isEqualTo(targetBoard.getContent());
+        assertThat(findBoardDto)
+                .extracting("boardId", "title", "writer", "content")
+                .containsExactly(savedBoard.getId(), savedBoard.getTitle(), savedBoard.getWriter(), savedBoard.getContent());
 
-        verify(boardRepository, times(1)).findById(boardId);
+        verify(boardRepository, times(1)).findById(savedBoard.getId());
     }
 
     @Test
