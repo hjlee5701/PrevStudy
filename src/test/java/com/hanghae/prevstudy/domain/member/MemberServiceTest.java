@@ -4,6 +4,7 @@ import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,6 +29,12 @@ public class MemberServiceTest {
     void 회원_가입_username_중복() {
         // given
         MemberAddRequest memberAddRequest = new MemberAddRequest("회원", "비밀번호");
+        Member newMember = Member.builder()
+                .id(1L)
+                .username("회원")
+                .password("비밀번호")
+                .build();
+        when(memberRepository.findByUsername(ArgumentMatchers.anyString())).thenReturn(Optional.of(newMember));
 
         // when
         PrevStudyException exception =
@@ -46,11 +53,12 @@ public class MemberServiceTest {
         // given
         MemberAddRequest memberAddRequest = new MemberAddRequest("회원", "비밀번호");
         Member newMember = Member.builder()
+                .id(1L)
                 .username("회원")
                 .password("비밀번호")
                 .build();
 
-        when(memberRepository.save(newMember)).thenReturn(newMember);
+        when(memberRepository.save(ArgumentMatchers.any(Member.class))).thenReturn(newMember);
 
         // when, then
         assertDoesNotThrow(() -> memberService.signup(memberAddRequest));
