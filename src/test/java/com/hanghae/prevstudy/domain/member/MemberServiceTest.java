@@ -42,8 +42,8 @@ public class MemberServiceTest {
 
         // then
         assertAll(
-                () -> assertEquals(exception.getStatus(), MemberErrorCode.DUPLICATE_USERNAME.getStatus()),
-                () -> assertEquals(exception.getMessage(), "중복된 username 입니다.")
+                () -> assertEquals(MemberErrorCode.DUPLICATE_USERNAME.getStatus(), exception.getStatus()),
+                () -> assertEquals("중복된 username 입니다.", exception.getMessage())
         );
     }
 
