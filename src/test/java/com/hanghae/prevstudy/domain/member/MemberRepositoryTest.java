@@ -54,17 +54,17 @@ public class MemberRepositoryTest {
     @DisplayName("회원_가입_성공")
     void 회원_가입_성공() {
         // given
-        Member signUpMember = Member.builder()
+        Member member = Member.builder()
                 .username("회원")
                 .password("비밀번호")
                 .build();
 
         // when
-        Member signupMember = memberRepository.save(signUpMember);
+        Member signUpMember = memberRepository.save(member);
 
         // then
         assertDoesNotThrow(() -> memberRepository.flush());
-        assertThat(memberRepository.findById(signupMember.getId())).isNotEmpty();
+        assertThat(memberRepository.findById(signUpMember.getId())).isNotEmpty();
     }
 
     @Test
