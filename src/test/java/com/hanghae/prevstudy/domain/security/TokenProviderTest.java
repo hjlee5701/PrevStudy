@@ -22,7 +22,7 @@ public class TokenProviderTest {
         long tokenValidityInMilliseconds = 86400;
 
         tokenProvider = new TokenProvider(secret, tokenValidityInMilliseconds);
-        tokenProvider.afterPropertiesSet();
+        tokenProvider.init();
     }
     @Test
     @DisplayName("토큰_발급")
