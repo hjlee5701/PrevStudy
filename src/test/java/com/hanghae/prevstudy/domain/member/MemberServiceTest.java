@@ -5,13 +5,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -64,6 +67,30 @@ public class MemberServiceTest {
         assertDoesNotThrow(() -> memberService.signup(memberAddRequest));
     }
 
+    @Test
+    @DisplayName("로그인_실패 - 비밀번호 불일치")
+    void 로그인_실패_비밀번호_불일치() {
+        // 회원 찾기
+        LoginRequest loginRequest = new LoginRequest("회원", "비밀번호2");
+        Member findMember = Member.builder()
+                .id(1L)
+                .username("회원")
+                .password("비밀번호")
+                .build();
+
+        BDDMockito.given(memberRepository.findByUsername("회원")).willReturn(Optional.of(findMember));
 
 
+        // when
+        PrevStudyException memberException = assertThrows(PrevStudyException.class,
+                () -> memberService.login(loginRequest)
+        );
+
+        // then
+        assertAll(
+                () -> assertEquals("사용자 로그인에 실패했습니다.", memberException.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, memberException.getStatus())
+        );
+
+    }
 }

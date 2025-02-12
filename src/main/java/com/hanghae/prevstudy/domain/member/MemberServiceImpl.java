@@ -31,4 +31,10 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.findByUsername(username).isPresent();
     }
 
+    @Override
+    public void login(LoginRequest loginRequest) {
+        Member member = memberRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow();
+        throw new PrevStudyException(MemberErrorCode.FAILED_LOGIN);
+    }
 }
