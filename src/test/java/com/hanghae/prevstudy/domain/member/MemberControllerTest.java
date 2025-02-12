@@ -16,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -58,19 +57,28 @@ public class MemberControllerTest {
     @Test
     @DisplayName("회원_가입_요청값_에러")
     void 회원_가입_요청값_에러() throws Exception {
-        MemberAddRequest memberAddRequest
-                = new MemberAddRequest("", "");
-        ResultActions signupResult = mockMvc.perform(
+
+        ResultActions invalidUsernameRequest = executeSignup("", "비밀번호");
+        ResultActions invalidPasswordRequest = executeSignup("회원", "");
+
+        invalidUsernameRequest
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.username").value("username을 입력해주세요."));
+
+        invalidPasswordRequest
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.password").value("비밀번호를 입력해주세요."));
+
+    }
+
+    private ResultActions executeSignup(String username, String password) throws Exception {
+        MemberAddRequest memberAddRequest = new MemberAddRequest(username, password);
+
+        return mockMvc.perform(
                 MockMvcRequestBuilders
                         .post(REQUEST_URL)
                         .content(createRequestToJson(memberAddRequest))
                         .contentType(MediaType.APPLICATION_JSON)
-
-        );
-        signupResult.andExpectAll(
-                status().isBadRequest(),
-                jsonPath("$.username").value("username을 입력해주세요."),
-                jsonPath("$.password").value("비밀번호를 입력해주세요.")
         );
     }
 }

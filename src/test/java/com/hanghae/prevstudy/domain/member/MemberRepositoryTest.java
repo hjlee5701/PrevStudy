@@ -83,4 +83,5 @@ public class MemberRepositoryTest {
         assertThat(memberRepository.findByUsername("가입 회원")).isNotEmpty();
         assertThat(memberRepository.findByUsername("미가입 회원")).isEmpty();
     }
+
 }
