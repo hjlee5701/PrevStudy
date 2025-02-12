@@ -25,9 +25,17 @@ repositories {
 
 dependencies {
     // ✅ Spring Boot Starter (JPA, Security, Web, Web Services)
+    // ✅ Spring Boot Starter (JPA, Security, Web)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // ✅ Jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'    // API 인터페이스 ex) JwtBuilder
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'   // API 구현체 + 서명/암호화 로직 포함
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'// ex) Payload 역/직렬화에 사용
+
 
     // ✅ Lombok (컴파일 시 적용)
     compileOnly 'org.projectlombok:lombok'
@@ -47,6 +55,7 @@ dependencies {
 //    runtimeOnly 'com.mysql:mysql-connector-j'
 //    runtimeOnly 'com.h2database:h2'
 }
+
 
 
 test {
