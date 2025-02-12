@@ -10,11 +10,11 @@ public class PrevStudyException extends RuntimeException {
     private final String message;
     private final HttpStatus status;
 
-    public PrevStudyException(BoardErrorCode boardErrorCode) {
-        super(boardErrorCode.getMessage());
-        this.errCode = boardErrorCode.getErrCode();
-        this.message = boardErrorCode.getMessage();
-        this.status = boardErrorCode.getStatus();
+    public PrevStudyException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errCode = errorCode.getErrCode();
+        this.message = errorCode.getMessage();
+        this.status = errorCode.getStatus();
     }
 
 }
