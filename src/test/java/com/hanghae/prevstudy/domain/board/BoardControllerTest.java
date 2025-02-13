@@ -12,10 +12,12 @@ import com.hanghae.prevstudy.domain.board.service.BoardServiceImpl;
 import com.hanghae.prevstudy.domain.board.exception.BoardErrorCode;
 import com.hanghae.prevstudy.global.exception.GlobalExceptionHandler;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -72,6 +74,15 @@ public class BoardControllerTest {
         assertThat(mockMvc).isNotNull();
     }
 
+    private ResultActions executeAddBoard(String title, String writer, String content, String password) throws Exception {
+        BoardAddRequest boardAddRequest = new BoardAddRequest(title, writer, content, password);
+        return mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(REQUEST_URL)
+                        .content(createRequestToJson(boardAddRequest))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+    }
 
     @Test
     @DisplayName("게시글_생성")
@@ -91,21 +102,26 @@ public class BoardControllerTest {
 
     @Test
     void 게시글_생성_요청값_에러() throws Exception {
-        // given
-        String json = createRequestToJson(
-                new BoardAddRequest("", "", "", "")
-        );
-
-        // when
-        ResultActions addResult = mockMvc.perform(
-                MockMvcRequestBuilders
-                        .post(REQUEST_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json));
+        // given, when
+        ResultActions blankTitle = executeAddBoard("", "작성자", "내용", "비밀번호");
+        ResultActions blankAll = executeAddBoard(" ", "", "", "");
 
         // then
-        addResult.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title").value("제목을 입력해 주세요."));
+        blankTitle.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value("400"),
+                jsonPath("$.message").value("[title: 제목을 입력해 주세요.]"),
+                jsonPath("$.data").isEmpty()
+        );
+        blankAll.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value("400"),
+                jsonPath("$.message").value(Matchers.containsString("title: 제목을 입력해 주세요.")),
+                jsonPath("$.message").value(Matchers.containsString("password: 비밀번호를 입력해 주세요.")),
+                jsonPath("$.message").value(Matchers.containsString("writer: 작성자를 입력해 주세요.")),
+                jsonPath("$.message").value(Matchers.containsString("content: 내용을 입력해 주세요."))
+        );
+
     }
 
     @Test
@@ -125,10 +141,12 @@ public class BoardControllerTest {
         );
 
         // then
-        getBoardResult
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(BoardErrorCode.BOARD_NOT_FOUND.getMessage()))
-                .andExpect(jsonPath("$.errCode").value(BoardErrorCode.BOARD_NOT_FOUND.getErrCode()));
+        getBoardResult.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value("400"),
+                jsonPath("$.message").value("게시글이 존재하지 않습니다."),
+                jsonPath("$.data").isEmpty()
+        );
     }
 
     @Test
@@ -164,7 +182,6 @@ public class BoardControllerTest {
         doThrow(new PrevStudyException(BoardErrorCode.INVALID_PASSWORD))
                 .when(boardService).update(any(Long.class), any(BoardUpdateRequest.class));
 
-
         // when
         ResultActions updateBoardResult = mockMvc.perform(
                 MockMvcRequestBuilders
@@ -172,12 +189,13 @@ public class BoardControllerTest {
                         .content(createRequestToJson(boardUpdateRequest))
                         .contentType(MediaType.APPLICATION_JSON)
         );
-
         // then
-        updateBoardResult
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(BoardErrorCode.INVALID_PASSWORD.getMessage()))
-                .andExpect(jsonPath("$.errCode").value(BoardErrorCode.INVALID_PASSWORD.getErrCode()));
+        updateBoardResult.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value("400"),
+                jsonPath("$.message").value("비밀번호가 일치하지 않습니다."),
+                jsonPath("$.data").isEmpty()
+        );
     }
 
     @Test
