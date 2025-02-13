@@ -69,7 +69,7 @@ public class BoardControllerTest {
 
     @Test
     @DisplayName("mockMVC_널_체크")
-    public void mockMvc_널_체크() throws Exception {
+    public void mockMvc_널_체크() {
         assertThat(boardController).isNotNull();
         assertThat(mockMvc).isNotNull();
     }
@@ -96,8 +96,13 @@ public class BoardControllerTest {
                         .content(createRequestToJson(new BoardAddRequest(
                                 "제목", "작성자", "내용", "비밀번호"
                         )))
+        // then
+        addResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value("200"),
+                jsonPath("$.message").value("게시글 생성 성공"),
+                jsonPath("$.data").isEmpty()
         );
-        addResult.andExpect(status().isOk());
     }
 
     @Test
@@ -166,8 +171,12 @@ public class BoardControllerTest {
         );
 
         // then
-        getBoardsResult
-                .andExpectAll(status().isOk());
+        getBoardsResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value("200"),
+                jsonPath("$.message").value("게시글 전체 조회 성공"),
+                jsonPath("$.data").isArray()
+        );
     }
 
 
@@ -192,7 +201,7 @@ public class BoardControllerTest {
         // then
         updateBoardResult.andExpectAll(
                 status().isBadRequest(),
-                jsonPath("$.status").value("400"),
+                jsonPath("$.status").value(400),
                 jsonPath("$.message").value("비밀번호가 일치하지 않습니다."),
                 jsonPath("$.data").isEmpty()
         );
@@ -227,9 +236,19 @@ public class BoardControllerTest {
         );
 
         // then
-        updateBoardResult
-                .andExpectAll(status().isOk());
+        updateBoardResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("게시글 수정 성공"),
+                jsonPath("$.data.boardId").exists(),
+                jsonPath("$.data.title").isString(),
+                jsonPath("$.data.content").isString(),
+                jsonPath("$.data.writer").isString(),
+                jsonPath("$.data.regAt").exists(),
+                jsonPath("$.data.modAt").exists()
+        );
     }
+
 
     @Test
     @DisplayName("게시글_삭제")
