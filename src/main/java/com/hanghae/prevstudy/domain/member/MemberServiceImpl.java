@@ -35,7 +35,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public TokenDto login(LoginRequest loginRequest) {
+    public AuthResultDto login(LoginRequest loginRequest) {
 
         Member member = memberRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new PrevStudyException(MemberErrorCode.FAILED_LOGIN));
@@ -44,7 +44,9 @@ public class MemberServiceImpl implements MemberService {
         if (!isValidPassword(storedPassword, loginRequest.getPassword())) {
             throw new PrevStudyException(MemberErrorCode.FAILED_LOGIN);
         }
-        return tokenProvider.createToken(member.getId().toString());
+        TokenDto tokenDto = tokenProvider.createToken(member.getId().toString());
+
+        return new AuthResultDto(tokenDto, new LoginResponse(member.getId()));
     }
 
     private boolean isValidPassword(String storedPassword, String inputPassword) {

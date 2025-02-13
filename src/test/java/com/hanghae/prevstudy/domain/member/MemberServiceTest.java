@@ -98,7 +98,7 @@ public class MemberServiceTest {
 
 
     @Test
-    @DisplayName("로그인 성공")
+    @DisplayName("로그인_성공")
     void 로그인_성공() {
         // given
         Member findMember = Member.builder()
@@ -111,17 +111,20 @@ public class MemberServiceTest {
                 .willReturn(Optional.of(findMember));
 
         BDDMockito.given(tokenProvider.createToken(Mockito.anyString()))
-                .willReturn(new TokenDto("memberId", "access-token", "refresh-token")); // 실제 값이 아닌 더미 값 사용
+                .willReturn(new TokenDto("memberId", "access-token", "refresh-token"));
 
         // when
         LoginRequest loginRequest = new LoginRequest("회원", "비밀번호");
-        TokenDto actualToken = memberService.login(loginRequest);
+        AuthResultDto authResultDto = memberService.login(loginRequest);
+
+        LoginResponse loginResponse = authResultDto.getLoginResponse();
+        TokenDto tokenDto = authResultDto.getTokenDto();
 
         // then
-        assertNotNull(actualToken);
-        assertNotNull(actualToken.getMemberId());
-        assertFalse(actualToken.getAccessToken().isEmpty());
-        assertFalse(actualToken.getRefreshToken().isEmpty());
+        assertNotNull(authResultDto);
+        assertNotNull(loginResponse.getMemberId());
+        assertFalse(tokenDto.getAccessToken().isEmpty());
+        assertFalse(tokenDto.getRefreshToken().isEmpty());
     }
 
 
