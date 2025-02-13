@@ -1,5 +1,7 @@
 package com.hanghae.prevstudy.domain.member;
 
+import com.hanghae.prevstudy.domain.security.TokenDto;
+import com.hanghae.prevstudy.domain.security.TokenProvider;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
+    private final TokenProvider tokenProvider;
 
     @Override
     @Transactional
@@ -32,9 +35,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void login(LoginRequest loginRequest) {
+    public TokenDto login(LoginRequest loginRequest) {
+
         Member member = memberRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow();
-        throw new PrevStudyException(MemberErrorCode.FAILED_LOGIN);
+                .orElseThrow(() -> new PrevStudyException(MemberErrorCode.FAILED_LOGIN));
+
+        return tokenProvider.createToken(member.getId().toString());
     }
 }

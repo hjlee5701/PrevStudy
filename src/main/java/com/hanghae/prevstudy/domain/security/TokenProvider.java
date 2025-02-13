@@ -60,6 +60,6 @@ public class TokenProvider {
                 .expiration(refreshExpiration)
                 .signWith(key)
                 .compact();
-        return new TokenDto(accessToken, refreshToken);
+        return new TokenDto(memberId, accessToken, refreshToken);
     }
 }

@@ -1,7 +1,9 @@
 package com.hanghae.prevstudy.domain.member;
 
+import com.hanghae.prevstudy.domain.security.TokenDto;
+
 public interface MemberService {
     void signup(MemberAddRequest memberAddRequest);
 
-    void login(LoginRequest loginRequest);
+    TokenDto login(LoginRequest loginRequest);
 }

@@ -1,20 +1,18 @@
 package com.hanghae.prevstudy.domain.member;
 
+import com.hanghae.prevstudy.domain.security.TokenDto;
+import com.hanghae.prevstudy.domain.security.TokenProvider;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +21,8 @@ import static org.mockito.Mockito.when;
 public class MemberServiceTest {
     @Mock
     private MemberRepository memberRepository;
+    @Mock
+    private TokenProvider tokenProvider;
 
     @InjectMocks
     private MemberServiceImpl memberService;
@@ -70,7 +70,7 @@ public class MemberServiceTest {
     @Test
     @DisplayName("로그인_실패 - 비밀번호 불일치")
     void 로그인_실패_비밀번호_불일치() {
-        // 회원 찾기
+        // given
         LoginRequest loginRequest = new LoginRequest("회원", "비밀번호2");
         Member findMember = Member.builder()
                 .id(1L)
@@ -93,4 +93,35 @@ public class MemberServiceTest {
         );
 
     }
+
+
+    @Test
+    @DisplayName("로그인 성공")
+    void 로그인_성공() {
+        // given
+        Member findMember = Member.builder()
+                .id(1L)
+                .username("회원")
+                .password("비밀번호")
+                .build();
+
+        BDDMockito.given(memberRepository.findByUsername(Mockito.any()))
+                .willReturn(Optional.of(findMember));
+
+        BDDMockito.given(tokenProvider.createToken(Mockito.anyString()))
+                .willReturn(new TokenDto("memberId", "access-token", "refresh-token")); // 실제 값이 아닌 더미 값 사용
+
+        // when
+        LoginRequest loginRequest = new LoginRequest("회원", "비밀번호");
+        TokenDto actualToken = memberService.login(loginRequest);
+
+        // then
+        assertNotNull(actualToken);
+        assertNotNull(actualToken.getMemberId());
+        assertFalse(actualToken.getAccessToken().isEmpty());
+        assertFalse(actualToken.getRefreshToken().isEmpty());
+    }
+
+
+
 }
