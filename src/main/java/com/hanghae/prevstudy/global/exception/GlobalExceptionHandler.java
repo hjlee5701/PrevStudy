@@ -3,30 +3,35 @@ package com.hanghae.prevstudy.global.exception;
 import com.hanghae.prevstudy.global.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException ex) {
 
-        String message = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
+        List<String> messages = ex.getBindingResult().getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())  // 필드명 + 오류 메시지
+                .toList();
+
+        String message = messages.toString();
 
         int status = HttpStatus.BAD_REQUEST.value();
-
-        return new ResponseEntity<>(ApiResponse.error(status, message), HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(ApiResponse.error(status, message));
     }
+
 
     @ExceptionHandler(PrevStudyException.class)
     public ResponseEntity<?> handleCustomException(PrevStudyException ex) {
-        CustomErrorResponse errorResponse = new CustomErrorResponse(ex.getErrCode(), ex.getMessage());
-        return new ResponseEntity<>(errorResponse, ex.getStatus());
+
+        return new ResponseEntity<>(
+                ApiResponse.error(ex.getHttpStatus().value(), ex.getMessage()), ex.getHttpStatus()
+        );
     }
 }
