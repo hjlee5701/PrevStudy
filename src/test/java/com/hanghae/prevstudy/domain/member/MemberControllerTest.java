@@ -63,12 +63,15 @@ public class MemberControllerTest {
 
         invalidUsernameRequest
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.username").value("username을 입력해주세요."));
+                .andExpect(jsonPath("$.status").value("400"))
+                .andExpect(jsonPath("$.message").value("username을 입력해주세요."))
+                .andExpect(jsonPath("$.data").isEmpty());
 
         invalidPasswordRequest
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.password").value("비밀번호를 입력해주세요."));
-
+                .andExpect(jsonPath("$.status").value("400"))
+                .andExpect(jsonPath("$.message").value("비밀번호를 입력해주세요."))
+                .andExpect(jsonPath("$.data").isEmpty());
     }
 
     @Test
