@@ -1,5 +1,6 @@
 package com.hanghae.prevstudy.domain.member;
 
+import com.hanghae.prevstudy.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +16,8 @@ public class MemberController {
 
     private final MemberService memberService;
     @PostMapping
-    public ResponseEntity<String> signup(@Valid @RequestBody MemberAddRequest memberAddRequest) {
+    public ResponseEntity<?> signup(@Valid @RequestBody MemberAddRequest memberAddRequest) {
         memberService.signup(memberAddRequest);
-        return ResponseEntity.ok("회원가입 완료");
+        return ResponseEntity.ok(ApiResponse.success("회원가입 성공", null));
     }
 }

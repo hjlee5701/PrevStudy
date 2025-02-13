@@ -6,7 +6,6 @@ import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import com.hanghae.prevstudy.domain.board.entity.Board;
 import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
 import com.hanghae.prevstudy.domain.board.service.BoardServiceImpl;
-import com.hanghae.prevstudy.domain.board.exception.BoardErrorCode;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Date;
@@ -74,13 +74,13 @@ public class BoardServiceTest {
         // given
         when(boardRepository.findById(999L)).thenReturn(Optional.empty());
 
-        // when, then
+        // when
         PrevStudyException exception = assertThrows(PrevStudyException.class,
                 () -> boardService.getBoard(999L));
 
-        assertThat(exception)
-                .extracting("errCode")
-                .isEqualTo(BoardErrorCode.BOARD_NOT_FOUND.getErrCode());
+        // then
+        assertThat("게시글이 존재하지 않습니다.").isEqualTo(exception.getMessage());
+        assertThat(HttpStatus.BAD_REQUEST).isEqualTo(exception.getHttpStatus());
     }
 
     @Test
@@ -153,8 +153,9 @@ public class BoardServiceTest {
         PrevStudyException exception = assertThrows(PrevStudyException.class,
                 () -> boardService.update(1L, boardUpdateRequest));
 
-        // Then
-        assertThat(exception.getMessage()).isEqualTo("비밀번호가 일치하지 않습니다.");
+        // then
+        assertThat("비밀번호가 일치하지 않습니다.").isEqualTo(exception.getMessage());
+        assertThat(HttpStatus.BAD_REQUEST).isEqualTo(exception.getHttpStatus());
     }
 
 
@@ -194,8 +195,8 @@ public class BoardServiceTest {
                 () -> boardService.delete(1L));
 
         // then
-        assertThat(exception.getErrCode()).isEqualTo(BoardErrorCode.BOARD_NOT_FOUND.getErrCode());
-        assertThat(exception.getMessage()).isEqualTo(BoardErrorCode.BOARD_NOT_FOUND.getMessage());
+        assertThat("게시글이 존재하지 않습니다.").isEqualTo(exception.getMessage());
+        assertThat(HttpStatus.BAD_REQUEST).isEqualTo(exception.getHttpStatus());
 
         verify(boardRepository, times(1)).findById(any(Long.class));
     }
