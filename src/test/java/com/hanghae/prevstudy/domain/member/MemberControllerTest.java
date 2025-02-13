@@ -71,6 +71,20 @@ public class MemberControllerTest {
 
     }
 
+    @Test
+    @DisplayName("회원_가입_성공")
+    void 회원_가입_성공() throws Exception {
+
+        // given, when
+        ResultActions signupResult = executeSignup("회원", "비밀번호");
+        // then
+        signupResult
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("200"))
+                .andExpect(jsonPath("$.message").value("회원가입 성공"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
     private ResultActions executeSignup(String username, String password) throws Exception {
         MemberAddRequest memberAddRequest = new MemberAddRequest(username, password);
 
