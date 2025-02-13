@@ -87,21 +87,34 @@ public class BoardControllerTest {
     @Test
     @DisplayName("게시글_생성")
     void 게시글_생성() throws Exception {
-        BoardResponse boardResponse = BoardResponse.builder().build();
-        doReturn(boardResponse).when(boardService).add(any(BoardAddRequest.class));
-        final ResultActions addResult = mockMvc.perform(
-                MockMvcRequestBuilders
-                        .post(REQUEST_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(createRequestToJson(new BoardAddRequest(
-                                "제목", "작성자", "내용", "비밀번호"
-                        )))
+
+        // given
+        BoardResponse boardResponse = BoardResponse.builder()
+                .boardId(1L)
+                .title("더미 제목")
+                .writer("더미 작성자")
+                .content("더미 내용")
+                .regAt(new Date())
+                .modAt(new Date())
+                .build();
+
+        BDDMockito.given(boardService.add(any(BoardAddRequest.class)))
+                .willReturn(boardResponse);
+
+        // when
+        ResultActions addResult = executeAddBoard("제목", "작성자", "내용", "비밀번호");
+
         // then
         addResult.andExpectAll(
                 status().isOk(),
-                jsonPath("$.status").value("200"),
+                jsonPath("$.status").value(200),
                 jsonPath("$.message").value("게시글 생성 성공"),
-                jsonPath("$.data").isEmpty()
+                jsonPath("$.data.boardId").exists(),
+                jsonPath("$.data.title").isString(),
+                jsonPath("$.data.content").isString(),
+                jsonPath("$.data.writer").isString(),
+                jsonPath("$.data.regAt").exists(),
+                jsonPath("$.data.modAt").exists()
         );
     }
 
@@ -180,23 +193,26 @@ public class BoardControllerTest {
     }
 
 
-    @Test
-    @DisplayName("게시글_수정_실패 - 비밀번호 불일치")
-    void 게시글_수정_실패() throws Exception {
-        // given
-        Long boardId = 1L;
-        BoardUpdateRequest boardUpdateRequest
-                = new BoardUpdateRequest("제목2", "내용2", "비밀번호2");
-
-        doThrow(new PrevStudyException(BoardErrorCode.INVALID_PASSWORD))
-                .when(boardService).update(any(Long.class), any(BoardUpdateRequest.class));
-
-        // when
-        ResultActions updateBoardResult = mockMvc.perform(
+    private ResultActions executeUpdateBoard(String boardId, BoardUpdateRequest boardUpdateRequest) throws Exception {
+        return mockMvc.perform(
                 MockMvcRequestBuilders
                         .patch(REQUEST_URL + "/" + boardId)
                         .content(createRequestToJson(boardUpdateRequest))
                         .contentType(MediaType.APPLICATION_JSON)
+        );
+    }
+
+    @Test
+    @DisplayName("게시글_수정_실패 - 비밀번호 불일치")
+    void 게시글_수정_실패() throws Exception {
+        // given
+        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class)))
+                .willThrow(new PrevStudyException(BoardErrorCode.INVALID_PASSWORD));
+
+        // when
+        ResultActions updateBoardResult = executeUpdateBoard(
+                "1",
+                new BoardUpdateRequest("제목2", "내용2", "비밀번호2")
         );
         // then
         updateBoardResult.andExpectAll(
@@ -207,32 +223,27 @@ public class BoardControllerTest {
         );
     }
 
+
     @Test
     @DisplayName("게시글_수정_성공")
     void 게시글_수정_성공() throws Exception {
         // given
-        Long boardId = 1L;
-        BoardUpdateRequest boardUpdateRequest
-                = new BoardUpdateRequest("제목2", "내용2", "비밀번호");
-
         BoardResponse boardResponse = BoardResponse.builder()
-                .boardId(boardId)
-                .title(boardUpdateRequest.getTitle())
-                .writer("작성자")
-                .content(boardUpdateRequest.getContent())
+                .boardId(1L)
+                .title("더미 제목")
+                .writer("더미 작성자")
+                .content("더미 내용")
                 .regAt(new Date())
                 .modAt(new Date())
                 .build();
 
-        doReturn(boardResponse).when(boardService).update(any(Long.class), any(BoardUpdateRequest.class));
-
+        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class)))
+                .willReturn(boardResponse);
 
         // when
-        ResultActions updateBoardResult = mockMvc.perform(
-                MockMvcRequestBuilders
-                        .patch(REQUEST_URL + "/" + boardId)
-                        .content(createRequestToJson(boardUpdateRequest))
-                        .contentType(MediaType.APPLICATION_JSON)
+        ResultActions updateBoardResult = executeUpdateBoard(
+                "1",
+                new BoardUpdateRequest("제목 수정", "내용 수정", "비밀번호")
         );
 
         // then
@@ -257,14 +268,18 @@ public class BoardControllerTest {
         Long boardId = 1L;
 
         // when
-        ResultActions getBoardsResult = mockMvc.perform(
+        ResultActions deleteResult = mockMvc.perform(
                 MockMvcRequestBuilders
                         .delete(REQUEST_URL + "/" + boardId)
                         .contentType(MediaType.APPLICATION_JSON)
         );
         // then
-        getBoardsResult
-                .andExpectAll(status().isOk());
+        deleteResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("게시글 삭제 성공"),
+                jsonPath("$.data").isEmpty()
+        );
     }
     
     
