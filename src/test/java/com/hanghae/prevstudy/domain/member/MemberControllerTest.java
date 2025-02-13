@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae.prevstudy.global.exception.GlobalExceptionHandler;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,20 +59,23 @@ public class MemberControllerTest {
     @DisplayName("회원_가입_요청값_에러")
     void 회원_가입_요청값_에러() throws Exception {
 
+        // given, when
         ResultActions invalidUsernameRequest = executeSignup("", "비밀번호");
         ResultActions invalidPasswordRequest = executeSignup("회원", "");
 
-        invalidUsernameRequest
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value("400"))
-                .andExpect(jsonPath("$.message").value("username을 입력해주세요."))
-                .andExpect(jsonPath("$.data").isEmpty());
-
-        invalidPasswordRequest
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value("400"))
-                .andExpect(jsonPath("$.message").value("비밀번호를 입력해주세요."))
-                .andExpect(jsonPath("$.data").isEmpty());
+        // then
+        invalidUsernameRequest.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value(400),
+                jsonPath("$.message").value(Matchers.containsString("username을 입력해주세요.")),
+                jsonPath("$.data").isEmpty()
+        );
+        invalidPasswordRequest.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value(400),
+                jsonPath("$.message").value(Matchers.containsString("비밀번호를 입력해주세요.")),
+                jsonPath("$.data").isEmpty()
+        );
     }
 
     @Test
@@ -80,12 +84,14 @@ public class MemberControllerTest {
 
         // given, when
         ResultActions signupResult = executeSignup("회원", "비밀번호");
+
         // then
-        signupResult
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("200"))
-                .andExpect(jsonPath("$.message").value("회원가입 성공"))
-                .andExpect(jsonPath("$.data").isEmpty());
+        signupResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("회원가입 성공"),
+                jsonPath("$.data").isEmpty()
+        );
     }
 
     private ResultActions executeSignup(String username, String password) throws Exception {
