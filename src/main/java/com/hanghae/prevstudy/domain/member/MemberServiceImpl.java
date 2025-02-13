@@ -40,6 +40,14 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new PrevStudyException(MemberErrorCode.FAILED_LOGIN));
 
+        String storedPassword = member.getPassword();
+        if (!isValidPassword(storedPassword, loginRequest.getPassword())) {
+            throw new PrevStudyException(MemberErrorCode.FAILED_LOGIN);
+        }
         return tokenProvider.createToken(member.getId().toString());
+    }
+
+    private boolean isValidPassword(String storedPassword, String inputPassword) {
+        return inputPassword.equals(storedPassword);
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -78,7 +79,8 @@ public class MemberServiceTest {
                 .password("비밀번호")
                 .build();
 
-        BDDMockito.given(memberRepository.findByUsername("회원")).willReturn(Optional.of(findMember));
+        BDDMockito.given(memberRepository.findByUsername(anyString()))
+                .willReturn(Optional.of(findMember));
 
 
         // when
