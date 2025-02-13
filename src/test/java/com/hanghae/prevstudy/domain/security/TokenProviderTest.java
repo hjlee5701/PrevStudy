@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
@@ -17,7 +18,7 @@ public class TokenProviderTest {
     private String secret;
 
     @BeforeEach
-    void setInit() throws Exception {
+    void setInit() {
         secret = "c2VjcmV0LTEtU2Vc2VjcmV0LTEtU2VjcmV0LTIjcmV0LTL";
         long tokenValidityInMilliseconds = 86400;
 
@@ -35,5 +36,10 @@ public class TokenProviderTest {
 
         // then
         assertThat(tokenDto).isNotNull();
+        assertTrue(tokenDto.getAccessToken().matches("^[a-zA-Z0-9\\-_.]+$"));
+        assertTrue(tokenDto.getRefreshToken().matches("^[a-zA-Z0-9\\-_.]+$"));
+
+        assertTrue(tokenDto.getAccessToken().length() > 20);
+        assertTrue(tokenDto.getRefreshToken().length() > 20);
     }
 }
