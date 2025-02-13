@@ -90,8 +90,8 @@ public class MemberServiceTest {
 
         // then
         assertAll(
-                () -> assertEquals("사용자 로그인에 실패했습니다.", memberException.getMessage()),
-                () -> assertEquals(HttpStatus.BAD_REQUEST, memberException.getStatus())
+                () -> assertEquals("회원을 찾을 수 없습니다.", memberException.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, memberException.getHttpStatus())
         );
 
     }
