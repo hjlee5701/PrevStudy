@@ -3,6 +3,7 @@ package com.hanghae.prevstudy.domain.member;
 import com.hanghae.prevstudy.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,11 @@ public class MemberController {
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
         AuthResultDto authResult = memberService.login(loginRequest);
 
-        return null;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + authResult.getTokenDto().getAccessToken());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(ApiResponse.success("로그인 성공", authResult.getLoginResponse()));
     }
 }

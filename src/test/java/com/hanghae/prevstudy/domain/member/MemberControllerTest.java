@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae.prevstudy.domain.security.TokenDto;
 import com.hanghae.prevstudy.global.exception.GlobalExceptionHandler;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.hamcrest.Matchers;
@@ -21,9 +22,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MemberControllerTest {
@@ -149,6 +150,33 @@ public class MemberControllerTest {
         );
 
     }
+
+    @Test
+    @DisplayName("로그인_성공")
+    void 로그인_성공() throws Exception {
+        // given
+        TokenDto tokenDto = new TokenDto("1", "accessTokenValue", "refreshTokenValue");
+        LoginResponse loginResponse = new LoginResponse(1L);
+
+        BDDMockito.given(memberService.login(any(LoginRequest.class)))
+                .willReturn(new AuthResultDto(tokenDto, loginResponse));
+
+        // when
+        ResultActions loginResult = executeLogin("hello", "hello");
+
+        // then
+        loginResult.andExpect(status().isOk());
+        loginResult.andExpectAll(
+                status().isOk(),
+                header().exists("Authorization"),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("로그인 성공"),
+                jsonPath("$.data.memberId").isNotEmpty()
+        );
+
+    }
+
+
 
 
     private ResultActions executeLogin(String username, String password) throws Exception {
