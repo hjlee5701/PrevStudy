@@ -5,11 +5,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae.prevstudy.global.exception.GlobalExceptionHandler;
+import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,6 +21,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -127,6 +130,26 @@ public class MemberControllerTest {
                 jsonPath("$.data").isEmpty()
         );
     }
+
+    @Test
+    @DisplayName("로그인_실패 - username/password 불일치")
+    void 로그인_실패_username_password_불일치() throws Exception {
+
+        // given
+        BDDMockito.given(memberService.login(any(LoginRequest.class)))
+                .willThrow(new PrevStudyException(MemberErrorCode.FAILED_LOGIN));
+        // when
+        ResultActions notMemberResult = executeLogin("notMember", "비밀번호");
+
+        notMemberResult.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value(400),
+                jsonPath("$.message").value("회원을 찾을 수 없습니다."),
+                jsonPath("$.data").isEmpty()
+        );
+
+    }
+
 
     private ResultActions executeLogin(String username, String password) throws Exception {
         LoginRequest loginRequest = new LoginRequest(username, password);

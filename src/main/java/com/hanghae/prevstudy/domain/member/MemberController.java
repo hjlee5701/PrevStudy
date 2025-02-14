@@ -20,6 +20,7 @@ public class MemberController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
+        AuthResultDto authResult = memberService.login(loginRequest);
 
         return null;
     }
