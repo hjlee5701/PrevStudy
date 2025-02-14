@@ -22,7 +22,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -37,6 +36,8 @@ public class MemberControllerTest {
     private MockMvc mockMvc;
 
     private final String REQUEST_URL = "/auth";
+    private final String SAMPLE_VALID_USERNAME = "tester";  // 정규식 패턴
+    private final String SAMPLE_VALID_PASSWORD = "tester2@";// 정규식 패턴
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
@@ -64,20 +65,20 @@ public class MemberControllerTest {
     void 회원_가입_요청값_에러() throws Exception {
 
         // given, when
-        ResultActions invalidUsernameRequest = executeSignup("", "비밀번호");
-        ResultActions invalidPasswordRequest = executeSignup("회원", "");
+        ResultActions inValidUsernameRequest = executeSignup("", "tester2@");
+        ResultActions invalidPasswordRequest = executeSignup("tester", "tes");
 
         // then
-        invalidUsernameRequest.andExpectAll(
+        inValidUsernameRequest.andExpectAll(
                 status().isBadRequest(),
                 jsonPath("$.status").value(400),
-                jsonPath("$.message").value(Matchers.containsString("username을 입력해주세요.")),
+                jsonPath("$.message").value(Matchers.containsString("사용자 이름은 4자 이상, 10자 이하의 알파벳 소문자 및 숫자로 구성되어야 합니다.")),
                 jsonPath("$.data").isEmpty()
         );
         invalidPasswordRequest.andExpectAll(
                 status().isBadRequest(),
                 jsonPath("$.status").value(400),
-                jsonPath("$.message").value(Matchers.containsString("비밀번호를 입력해주세요.")),
+                jsonPath("$.message").value(Matchers.containsString("비밀번호는 8자 이상, 15자 이하이며 알파벳 대소문자, 숫자, 특수문자를 포함해야 합니다.")),
                 jsonPath("$.data").isEmpty()
         );
     }
@@ -87,7 +88,7 @@ public class MemberControllerTest {
     void 회원_가입_성공() throws Exception {
 
         // given, when
-        ResultActions signupResult = executeSignup("회원", "비밀번호");
+        ResultActions signupResult = executeSignup(SAMPLE_VALID_USERNAME, SAMPLE_VALID_PASSWORD);
 
         // then
         signupResult.andExpectAll(
@@ -112,22 +113,21 @@ public class MemberControllerTest {
     @Test
     @DisplayName("로그인_요청값_에러")
     void 로그인_요청값_에러() throws Exception {
-
         // given, when
-        ResultActions invalidUsernameRequest = executeLogin("", "비밀번호");
-        ResultActions invalidPasswordRequest = executeLogin("회원", "");
+        ResultActions inValidUsernameRequest = executeSignup("", "tester2@");
+        ResultActions inValidPasswordRequest = executeSignup("tester", "tes");
 
         // then
-        invalidUsernameRequest.andExpectAll(
+        inValidUsernameRequest.andExpectAll(
                 status().isBadRequest(),
                 jsonPath("$.status").value(400),
-                jsonPath("$.message").value(Matchers.containsString("username을 입력해주세요.")),
+                jsonPath("$.message").value(Matchers.containsString("사용자 이름은 4자 이상, 10자 이하의 알파벳 소문자 및 숫자로 구성되어야 합니다.")),
                 jsonPath("$.data").isEmpty()
         );
-        invalidPasswordRequest.andExpectAll(
+        inValidPasswordRequest.andExpectAll(
                 status().isBadRequest(),
                 jsonPath("$.status").value(400),
-                jsonPath("$.message").value(Matchers.containsString("비밀번호를 입력해주세요.")),
+                jsonPath("$.message").value(Matchers.containsString("비밀번호는 8자 이상, 15자 이하이며 알파벳 대소문자, 숫자, 특수문자를 포함해야 합니다.")),
                 jsonPath("$.data").isEmpty()
         );
     }
@@ -140,7 +140,7 @@ public class MemberControllerTest {
         BDDMockito.given(memberService.login(any(LoginRequest.class)))
                 .willThrow(new PrevStudyException(MemberErrorCode.FAILED_LOGIN));
         // when
-        ResultActions notMemberResult = executeLogin("notMember", "비밀번호");
+        ResultActions notMemberResult = executeLogin(SAMPLE_VALID_USERNAME, SAMPLE_VALID_PASSWORD);
 
         notMemberResult.andExpectAll(
                 status().isBadRequest(),
@@ -162,7 +162,7 @@ public class MemberControllerTest {
                 .willReturn(new AuthResultDto(tokenDto, loginResponse));
 
         // when
-        ResultActions loginResult = executeLogin("hello", "hello");
+        ResultActions loginResult = executeLogin("tester", "tester2@");
 
         // then
         loginResult.andExpect(status().isOk());
