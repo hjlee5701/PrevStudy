@@ -104,4 +104,39 @@ public class MemberControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
         );
     }
+
+    @Test
+    @DisplayName("로그인_요청값_에러")
+    void 로그인_요청값_에러() throws Exception {
+
+        // given, when
+        ResultActions invalidUsernameRequest = executeLogin("", "비밀번호");
+        ResultActions invalidPasswordRequest = executeLogin("회원", "");
+
+        // then
+        invalidUsernameRequest.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value(400),
+                jsonPath("$.message").value(Matchers.containsString("username을 입력해주세요.")),
+                jsonPath("$.data").isEmpty()
+        );
+        invalidPasswordRequest.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value(400),
+                jsonPath("$.message").value(Matchers.containsString("비밀번호를 입력해주세요.")),
+                jsonPath("$.data").isEmpty()
+        );
+    }
+
+    private ResultActions executeLogin(String username, String password) throws Exception {
+        LoginRequest loginRequest = new LoginRequest(username, password);
+
+        return mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(REQUEST_URL)
+                        .content(createRequestToJson(loginRequest))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+    }
+
 }
