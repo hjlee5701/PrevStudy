@@ -8,12 +8,11 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum BoardErrorCode implements ErrorCode {
-    BOARD_NOT_FOUND("B001", "게시글이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
-    INVALID_PASSWORD("B002", "비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+    BOARD_NOT_FOUND("게시글이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     ;
 
-    private final String errCode;
     private final String message;
-    private final HttpStatus status;
+    private final HttpStatus httpStatus;
 
 }
