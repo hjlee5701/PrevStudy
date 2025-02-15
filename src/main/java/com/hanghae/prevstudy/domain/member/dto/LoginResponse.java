@@ -1,4 +1,4 @@
-package com.hanghae.prevstudy.domain.member;
+package com.hanghae.prevstudy.domain.member.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

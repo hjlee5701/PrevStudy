@@ -1,4 +1,4 @@
-package com.hanghae.prevstudy.domain.member;
+package com.hanghae.prevstudy.domain.member.dto;
 
 import com.hanghae.prevstudy.domain.security.TokenDto;
 import lombok.AllArgsConstructor;

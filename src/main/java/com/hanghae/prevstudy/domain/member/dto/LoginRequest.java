@@ -1,4 +1,4 @@
-package com.hanghae.prevstudy.domain.member;
+package com.hanghae.prevstudy.domain.member.dto;
 
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class MemberAddRequest {
+public class LoginRequest {
 
     @Pattern(
             regexp = "^[a-z0-9]{4,10}$",
@@ -20,3 +20,4 @@ public class MemberAddRequest {
     )
     private final String password;
 }
+

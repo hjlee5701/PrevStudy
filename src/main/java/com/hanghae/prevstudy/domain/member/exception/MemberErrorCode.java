@@ -1,4 +1,4 @@
-package com.hanghae.prevstudy.domain.member;
+package com.hanghae.prevstudy.domain.member.exception;
 
 import com.hanghae.prevstudy.global.exception.ErrorCode;
 import lombok.Getter;

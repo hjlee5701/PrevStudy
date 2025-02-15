@@ -1,5 +1,12 @@
-package com.hanghae.prevstudy.domain.member;
+package com.hanghae.prevstudy.domain.member.service;
 
+import com.hanghae.prevstudy.domain.member.entity.Member;
+import com.hanghae.prevstudy.domain.member.exception.MemberErrorCode;
+import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
+import com.hanghae.prevstudy.domain.member.dto.AuthResultDto;
+import com.hanghae.prevstudy.domain.member.dto.LoginRequest;
+import com.hanghae.prevstudy.domain.member.dto.LoginResponse;
+import com.hanghae.prevstudy.domain.member.dto.MemberAddRequest;
 import com.hanghae.prevstudy.domain.security.TokenDto;
 import com.hanghae.prevstudy.domain.security.TokenProvider;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
