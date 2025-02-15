@@ -1,5 +1,10 @@
-package com.hanghae.prevstudy.domain.member;
+package com.hanghae.prevstudy.domain.member.controller;
 
+import com.hanghae.prevstudy.domain.member.dto.AuthResultDto;
+import com.hanghae.prevstudy.domain.member.dto.LoginRequest;
+import com.hanghae.prevstudy.domain.member.dto.LoginResponse;
+import com.hanghae.prevstudy.domain.member.dto.MemberAddRequest;
+import com.hanghae.prevstudy.domain.member.service.MemberService;
 import com.hanghae.prevstudy.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
