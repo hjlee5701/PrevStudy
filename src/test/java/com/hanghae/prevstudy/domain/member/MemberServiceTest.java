@@ -1,5 +1,13 @@
 package com.hanghae.prevstudy.domain.member;
 
+import com.hanghae.prevstudy.domain.member.dto.AuthResultDto;
+import com.hanghae.prevstudy.domain.member.dto.LoginRequest;
+import com.hanghae.prevstudy.domain.member.dto.LoginResponse;
+import com.hanghae.prevstudy.domain.member.dto.MemberAddRequest;
+import com.hanghae.prevstudy.domain.member.entity.Member;
+import com.hanghae.prevstudy.domain.member.exception.MemberErrorCode;
+import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
+import com.hanghae.prevstudy.domain.member.service.MemberServiceImpl;
 import com.hanghae.prevstudy.domain.security.TokenDto;
 import com.hanghae.prevstudy.domain.security.TokenProvider;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
@@ -46,7 +54,7 @@ public class MemberServiceTest {
 
         // then
         assertAll(
-                () -> assertEquals(MemberErrorCode.DUPLICATE_USERNAME.getStatus(), exception.getStatus()),
+                () -> assertEquals(MemberErrorCode.DUPLICATE_USERNAME.getHttpStatus(), exception.getHttpStatus()),
                 () -> assertEquals("중복된 username 입니다.", exception.getMessage())
         );
     }
@@ -90,15 +98,15 @@ public class MemberServiceTest {
 
         // then
         assertAll(
-                () -> assertEquals("사용자 로그인에 실패했습니다.", memberException.getMessage()),
-                () -> assertEquals(HttpStatus.BAD_REQUEST, memberException.getStatus())
+                () -> assertEquals("회원을 찾을 수 없습니다.", memberException.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, memberException.getHttpStatus())
         );
 
     }
 
 
     @Test
-    @DisplayName("로그인 성공")
+    @DisplayName("로그인_성공")
     void 로그인_성공() {
         // given
         Member findMember = Member.builder()
@@ -111,17 +119,20 @@ public class MemberServiceTest {
                 .willReturn(Optional.of(findMember));
 
         BDDMockito.given(tokenProvider.createToken(Mockito.anyString()))
-                .willReturn(new TokenDto("memberId", "access-token", "refresh-token")); // 실제 값이 아닌 더미 값 사용
+                .willReturn(new TokenDto("memberId", "access-token", "refresh-token"));
 
         // when
         LoginRequest loginRequest = new LoginRequest("회원", "비밀번호");
-        TokenDto actualToken = memberService.login(loginRequest);
+        AuthResultDto authResultDto = memberService.login(loginRequest);
+
+        LoginResponse loginResponse = authResultDto.getLoginResponse();
+        TokenDto tokenDto = authResultDto.getTokenDto();
 
         // then
-        assertNotNull(actualToken);
-        assertNotNull(actualToken.getMemberId());
-        assertFalse(actualToken.getAccessToken().isEmpty());
-        assertFalse(actualToken.getRefreshToken().isEmpty());
+        assertNotNull(authResultDto);
+        assertNotNull(loginResponse.getMemberId());
+        assertFalse(tokenDto.getAccessToken().isEmpty());
+        assertFalse(tokenDto.getRefreshToken().isEmpty());
     }
 
 
