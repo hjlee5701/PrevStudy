@@ -1,11 +1,14 @@
 package com.hanghae.prevstudy.domain.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +19,6 @@ public class TokenProviderTest {
 
     private TokenProvider tokenProvider;
     private final String VALID_SECRET_KEY = "c2VjcmV0LTEtU2Vc2VjcmV0LTEtU2VjcmV0LTIjcmV0LTL";
-
 
 
     void setTokenProvider(String secretKey, long accessExpSec, long refreshExpSec) {
@@ -69,7 +71,7 @@ public class TokenProviderTest {
         // then
         assertEquals("올바르지 않은 JWT 형식입니다.", unSupportException.getMessage());
     }
-    
+
     @Test
     @DisplayName("서명 에러 토큰 예외 테스트")
     void 서명_에러_토큰() {
@@ -84,6 +86,7 @@ public class TokenProviderTest {
         // then
         assertEquals("JWT 서명이 유효하지 않습니다.", expireException.getMessage());
     }
+
     @Test
     @DisplayName("만료된 토큰 예외 테스트")
     void 만료된_토큰() {
@@ -98,4 +101,18 @@ public class TokenProviderTest {
         assertEquals("만료된 JWT 토큰입니다.", expireException.getMessage());
     }
 
+    @Test
+    @DisplayName("토큰_분석_성공")
+    void 토큰_분석_성공() {
+        // given
+        setTokenProvider(VALID_SECRET_KEY, 300, 0);
+        String validToken = tokenProvider.createToken("1").getAccessToken();
+
+        // when
+        Claims claims = tokenProvider.parseToken(validToken);
+
+        // then
+        assertThat(claims.getSubject()).isEqualTo("1");
+        assertTrue(claims.getExpiration().after(new Date()));
+    }
 }
