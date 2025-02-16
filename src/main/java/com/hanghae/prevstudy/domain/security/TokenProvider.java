@@ -1,6 +1,5 @@
 package com.hanghae.prevstudy.domain.security;
 
-import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -85,13 +84,13 @@ public class TokenProvider {
                     .getPayload();
 
         } catch (MalformedJwtException e) {
-            throw new PrevStudyException(JWT_MALFORMED);
+            throw new JwtValidationException(JWT_MALFORMED);
         } catch (SignatureException e) {
-            throw new PrevStudyException(JWT_INVALID_SIGNATURE);
+            throw new JwtValidationException(JWT_INVALID_SIGNATURE);
         } catch (ExpiredJwtException e) {
-            throw new PrevStudyException(JWT_EXPIRED);
+            throw new JwtValidationException(JWT_EXPIRED);
         } catch (UnsupportedJwtException e) {
-            throw new PrevStudyException(JWT_UNSUPPORTED); // 암호화 알고리즘이 다름
+            throw new JwtValidationException(JWT_UNSUPPORTED); // 암호화 알고리즘이 다름
         }
     }
 }
