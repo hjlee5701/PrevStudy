@@ -1,11 +1,14 @@
 package com.hanghae.prevstudy.domain.security;
 
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
@@ -17,17 +20,20 @@ public class TokenProvider {
 
     private final String secret; // @Valid 필드 주입 방식
 
-    private final long tokenValidity;
+    private final long accessTokenExpirationMs;
+    private final long refreshTokenExpirationMs;
 
     private Key key;
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.tokenValidity}") long tokenValidity
+            @Value("${jwt.accessTokenExpirationMs}") long accessExpSec,
+            @Value("${jwt.refreshTokenExpirationMs}") long refreshExpSec
     ) {
 
         this.secret = secret;
-        this.tokenValidity = tokenValidity * 1000;
+        this.accessTokenExpirationMs = accessExpSec * 1000;
+        this.refreshTokenExpirationMs = refreshExpSec * 1000;
     }
 
 
@@ -43,9 +49,10 @@ public class TokenProvider {
 
     public TokenDto createToken(String memberId) {
 
-        long now = (new Date()).getTime();
-        Date accessExpiration = new Date(now + 99300000); // 5분
-        Date refreshExpiration = new Date(now + this.tokenValidity);
+        long now = System.currentTimeMillis();
+
+        Date accessExpiration = new Date(now + this.accessTokenExpirationMs);
+        Date refreshExpiration = new Date(now + this.accessTokenExpirationMs);
 
         String accessToken = Jwts.builder()
                 .claim(AUTHORITIES_KEY, "auth")

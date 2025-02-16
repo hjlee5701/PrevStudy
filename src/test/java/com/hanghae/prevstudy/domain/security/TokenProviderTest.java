@@ -8,28 +8,29 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 public class TokenProviderTest {
 
     private TokenProvider tokenProvider;
-    private String secret;
+    private final String VALID_SECRET_KEY = "c2VjcmV0LTEtU2Vc2VjcmV0LTEtU2VjcmV0LTIjcmV0LTL";
 
-    @BeforeEach
-    void setInit() {
-        secret = "c2VjcmV0LTEtU2Vc2VjcmV0LTEtU2VjcmV0LTIjcmV0LTL";
-        long tokenValidityInMilliseconds = 86400;
 
-        tokenProvider = new TokenProvider(secret, tokenValidityInMilliseconds);
+
+    void setTokenProvider(String secretKey, long accessExpSec, long refreshExpSec) {
+
+        tokenProvider = new TokenProvider(secretKey, accessExpSec, refreshExpSec);
         tokenProvider.init();
     }
+
     @Test
-    @DisplayName("토큰_발급")
-    void 토큰_발급() {
+    @DisplayName("토큰_발급_성공")
+    void 토큰_발급_성공() {
         // given
         String memberId = "1";
+        setTokenProvider(VALID_SECRET_KEY, 300, 300);
 
         // when
         TokenDto tokenDto = tokenProvider.createToken(memberId);
