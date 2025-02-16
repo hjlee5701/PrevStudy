@@ -1,5 +1,6 @@
 package com.hanghae.prevstudy.domain.security;
 
+import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.DisplayName;
@@ -66,8 +67,8 @@ public class TokenProviderTest {
         setTokenProvider(VALID_SECRET_KEY, 300, 0);
 
         // when
-        JwtException unSupportException
-                = assertThrows(JwtException.class, () -> tokenProvider.parseToken("not-valid-token"));
+        PrevStudyException unSupportException
+                = assertThrows(PrevStudyException.class, () -> tokenProvider.parseToken("not-valid-token"));
         // then
         assertEquals("올바르지 않은 JWT 형식입니다.", unSupportException.getMessage());
     }
@@ -81,7 +82,7 @@ public class TokenProviderTest {
 
         // when
         setTokenProvider("In" + VALID_SECRET_KEY, 300, 0);
-        JwtException expireException = assertThrows(JwtException.class, () -> tokenProvider.parseToken(token));
+        PrevStudyException expireException = assertThrows(PrevStudyException.class, () -> tokenProvider.parseToken(token));
 
         // then
         assertEquals("JWT 서명이 유효하지 않습니다.", expireException.getMessage());
@@ -95,7 +96,7 @@ public class TokenProviderTest {
         String expiredToken = tokenProvider.createToken("1").getAccessToken();
 
         // when
-        JwtException expireException = assertThrows(JwtException.class, () -> tokenProvider.parseToken(expiredToken));
+        PrevStudyException expireException = assertThrows(PrevStudyException.class, () -> tokenProvider.parseToken(expiredToken));
 
         // then
         assertEquals("만료된 JWT 토큰입니다.", expireException.getMessage());

@@ -1,10 +1,10 @@
 package com.hanghae.prevstudy.domain.security;
 
+import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +12,8 @@ import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+
+import static com.hanghae.prevstudy.domain.security.JwtErrorCode.*;
 
 @Component
 public class TokenProvider {
@@ -83,13 +85,13 @@ public class TokenProvider {
                     .getPayload();
 
         } catch (MalformedJwtException e) {
-            throw new JwtException("올바르지 않은 JWT 형식입니다.", e);
+            throw new PrevStudyException(JWT_MALFORMED);
         } catch (SignatureException e) {
-            throw new JwtException("JWT 서명이 유효하지 않습니다.", e);
+            throw new PrevStudyException(JWT_INVALID_SIGNATURE);
         } catch (ExpiredJwtException e) {
-            throw new JwtException("만료된 JWT 토큰입니다.", e);
+            throw new PrevStudyException(JWT_EXPIRED);
         } catch (UnsupportedJwtException e) {
-            throw new JwtException("지원하지 않는 JWT 토큰입니다.", e); // 암호화 알고리즘이 다름
+            throw new PrevStudyException(JWT_UNSUPPORTED); // 암호화 알고리즘이 다름
         }
     }
 }
