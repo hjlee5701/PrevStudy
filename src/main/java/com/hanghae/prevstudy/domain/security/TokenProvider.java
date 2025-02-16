@@ -69,4 +69,27 @@ public class TokenProvider {
                 .compact();
         return new TokenDto(memberId, accessToken, refreshToken);
     }
+
+    public Claims parseToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            throw new JwtException("JWT 토큰이 제공되지 않았습니다.");
+        }
+
+        try {
+            return Jwts.parser()
+                    .verifyWith((SecretKey) key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+        } catch (MalformedJwtException e) {
+            throw new JwtException("올바르지 않은 JWT 형식입니다.", e);
+        } catch (SignatureException e) {
+            throw new JwtException("JWT 서명이 유효하지 않습니다.", e);
+        } catch (ExpiredJwtException e) {
+            throw new JwtException("만료된 JWT 토큰입니다.", e);
+        } catch (UnsupportedJwtException e) {
+            throw new JwtException("지원하지 않는 JWT 토큰입니다.", e); // 암호화 알고리즘이 다름
+        }
+    }
 }

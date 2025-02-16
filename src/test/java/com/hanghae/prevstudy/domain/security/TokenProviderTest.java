@@ -1,6 +1,6 @@
 package com.hanghae.prevstudy.domain.security;
 
-import org.junit.jupiter.api.BeforeEach;
+import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,4 +43,59 @@ public class TokenProviderTest {
         assertTrue(tokenDto.getAccessToken().length() > 20);
         assertTrue(tokenDto.getRefreshToken().length() > 20);
     }
+
+    @Test
+    @DisplayName("제공 안된 토큰 예외 테스트")
+    void null_토큰_에러() {
+        // given
+        setTokenProvider(VALID_SECRET_KEY, 300, 0);
+
+        // when
+        JwtException nullException = assertThrows(JwtException.class, () -> tokenProvider.parseToken(null));
+
+        // then
+        assertEquals("JWT 토큰이 제공되지 않았습니다.", nullException.getMessage());
+    }
+
+    @Test
+    @DisplayName("올바르지 형식 토큰 예외 테스트")
+    void 토큰_형식_에러() {
+        // given
+        setTokenProvider(VALID_SECRET_KEY, 300, 0);
+
+        // when
+        JwtException unSupportException
+                = assertThrows(JwtException.class, () -> tokenProvider.parseToken("not-valid-token"));
+        // then
+        assertEquals("올바르지 않은 JWT 형식입니다.", unSupportException.getMessage());
+    }
+    
+    @Test
+    @DisplayName("서명 에러 토큰 예외 테스트")
+    void 서명_에러_토큰() {
+        // given
+        setTokenProvider(VALID_SECRET_KEY, 300, 0);
+        String token = tokenProvider.createToken("1").getAccessToken();
+
+        // when
+        setTokenProvider("In" + VALID_SECRET_KEY, 300, 0);
+        JwtException expireException = assertThrows(JwtException.class, () -> tokenProvider.parseToken(token));
+
+        // then
+        assertEquals("JWT 서명이 유효하지 않습니다.", expireException.getMessage());
+    }
+    @Test
+    @DisplayName("만료된 토큰 예외 테스트")
+    void 만료된_토큰() {
+        // given
+        setTokenProvider(VALID_SECRET_KEY, 0, 0);
+        String expiredToken = tokenProvider.createToken("1").getAccessToken();
+
+        // when
+        JwtException expireException = assertThrows(JwtException.class, () -> tokenProvider.parseToken(expiredToken));
+
+        // then
+        assertEquals("만료된 JWT 토큰입니다.", expireException.getMessage());
+    }
+
 }
