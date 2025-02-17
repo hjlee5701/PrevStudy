@@ -17,7 +17,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 public class UserDetailsServiceImplTest {
@@ -32,10 +32,10 @@ public class UserDetailsServiceImplTest {
     @DisplayName("토큰_인증_성공_후_사용자_정보_로드_실패")
     void 사용자_정보_로드_실패() {
         // given
-        BDDMockito.given(memberRepository.findByUsername(anyString()))
+        BDDMockito.given(memberRepository.findById(anyLong()))
                 .willReturn(Optional.empty());
         // when, then
-        assertThrows(UsernameNotFoundException.class, ()-> userDetailsService.loadUserByUsername("미인증 사용자"));
+        assertThrows(UsernameNotFoundException.class, ()-> userDetailsService.loadUserByUsername("999"));
     }
 
     @Test
@@ -44,10 +44,10 @@ public class UserDetailsServiceImplTest {
         // given
         Member member = new Member(1L, "인증 사용자", "비밀번호");
         
-        BDDMockito.given(memberRepository.findByUsername(anyString()))
+        BDDMockito.given(memberRepository.findById(anyLong()))
                 .willReturn(Optional.of(member));
         // when
-        UserDetails userDetails = userDetailsService.loadUserByUsername("인증 사용자");
+        UserDetails userDetails = userDetailsService.loadUserByUsername("1");
 
         // then
         assertAll(
