@@ -3,8 +3,6 @@ package com.hanghae.prevstudy.domain.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.impl.DefaultClaims;
 import jakarta.servlet.ServletException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -112,6 +110,47 @@ public class JwtFilterTest {
         // then
         assertEquals("사용자를 찾을 수 없습니다.", response.getErrorMessage());
         assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
+    }
+
+    @Test
+    @DisplayName("유효한 JWT 토큰이 주어졌을 때 SecurityContext에 Authentication이 저장된다.")
+    void SecurityContext에_인증_정보_저장_성공()
+            throws ServletException, IOException {
+        // given
+        setUpContext(); // security context 설정
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer valid-access-token");
+
+        Claims claims = new DefaultClaims(Map.of("sub", "1"));
+        BDDMockito.given(tokenProvider.parseToken(anyString()))
+                .willReturn(claims);
+
+        BDDMockito.given(userDetailsService.loadUserByUsername(anyString()))
+                .willReturn(new UserDetailsImpl(1L, "회원", "비밀번호", null));
+
+        // when
+        jwtFilter.doFilterInternal(request, new MockHttpServletResponse(), new MockFilterChain());
+
+        // then
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        assertNotNull(authentication);
+        assertNotNull(authentication.getPrincipal());
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        assertEquals(1L, userDetails.getId());
+        assertEquals("회원", userDetails.getUsername());
+        assertEquals("비밀번호", userDetails.getPassword());
+
+        tearDownContext(); // security context 설정
+    }
+
+    void setUpContext() {
+        SecurityContext testContext = SecurityContextHolder.createEmptyContext(); // 테스트 격리 보장
+        SecurityContextHolder.setContext(testContext);
+    }
+    void tearDownContext() {
+        SecurityContextHolder.clearContext();
     }
 
 
