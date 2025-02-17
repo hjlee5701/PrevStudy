@@ -1,23 +1,34 @@
 package com.hanghae.prevstudy.domain.security;
 
-import com.hanghae.prevstudy.global.exception.PrevStudyException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.impl.DefaultClaims;
 import jakarta.servlet.ServletException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static com.hanghae.prevstudy.domain.security.JwtErrorCode.JWT_UNSUPPORTED;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(MockitoExtension.class)
 public class JwtFilterTest {
@@ -78,5 +89,30 @@ public class JwtFilterTest {
         assertEquals(JWT_UNSUPPORTED.getMessage(), response.getErrorMessage());
         assertEquals(JWT_UNSUPPORTED.getHttpStatus().value(), response.getStatus());
     }
+
+    @Test
+    @DisplayName("HttpServletResponse에_UsernameNotFoundException_설정")
+    void HttpServletResponse에_UsernameNotFoundException_설정() throws ServletException, IOException {
+        // given
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        BDDMockito.given(tokenProvider.parseToken(Mockito.any()))
+                .willReturn(new DefaultClaims(Map.of("sub", "1")));
+
+        BDDMockito.given(userDetailsService.loadUserByUsername(anyString()))
+                .willThrow(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // when
+        jwtFilter.doFilterInternal(
+                new MockHttpServletRequest(),
+                response,
+                new MockFilterChain()
+        );
+
+        // then
+        assertEquals("사용자를 찾을 수 없습니다.", response.getErrorMessage());
+        assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
+    }
+
 
 }
