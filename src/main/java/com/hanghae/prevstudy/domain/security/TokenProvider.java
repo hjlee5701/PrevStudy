@@ -72,10 +72,6 @@ public class TokenProvider {
     }
 
     public Claims parseToken(String token) {
-        if (token == null || token.trim().isEmpty()) {
-            throw new JwtException("JWT 토큰이 제공되지 않았습니다.");
-        }
-
         try {
             return Jwts.parser()
                     .verifyWith((SecretKey) key)

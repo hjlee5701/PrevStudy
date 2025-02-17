@@ -1,7 +1,6 @@
 package com.hanghae.prevstudy.domain.security;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,18 +45,6 @@ public class TokenProviderTest {
         assertTrue(tokenDto.getRefreshToken().length() > 20);
     }
 
-    @Test
-    @DisplayName("제공 안된 토큰 예외 테스트")
-    void null_토큰_에러() {
-        // given
-        setTokenProvider(VALID_SECRET_KEY, 300, 0);
-
-        // when
-        JwtException nullException = assertThrows(JwtException.class, () -> tokenProvider.parseToken(null));
-
-        // then
-        assertEquals("JWT 토큰이 제공되지 않았습니다.", nullException.getMessage());
-    }
 
     @Test
     @DisplayName("올바르지 형식 토큰 예외 테스트")

@@ -1,5 +1,7 @@
 package com.hanghae.prevstudy.domain.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae.prevstudy.global.response.ApiResponse;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,10 +29,15 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        try {
-            // 헤더에서 토큰 추출
-            String token = extractToken(request);
+        // 헤더에서 토큰 추출
+        String token = extractToken(request);
 
+        if (token == null || token.trim().isEmpty()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        try {
             // 토큰 유효성 검사 및 사용자 정보 추출
             Claims claims = tokenProvider.parseToken(token);
 
@@ -39,14 +46,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
 
-        } catch (JwtValidationException e) {
-            response.sendError(e.getHttpStatus().value(), e.getMessage());
+        } catch (JwtValidationException ex) {
+            sendJsonErrorResponse(response, ex.getHttpStatus().value(), ex.getMessage());
         } catch (UsernameNotFoundException e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            sendJsonErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
         }
     }
+
 
     public String extractToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
@@ -67,5 +73,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // 컨텍스트에 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+
+    // 공통 JSON 응답 처리 메서드
+    private void sendJsonErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        new ObjectMapper().writeValue(response.getWriter(),
+                ApiResponse.error(status, message));
+
     }
 }

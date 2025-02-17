@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -70,28 +69,30 @@ public class JwtFilterTest {
     }
 
     @Test
-    @DisplayName("HttpServletResponse에_JwtValidationException_설정")
-    void HttpServletResponse에_JwtValidationException_설정() throws ServletException, IOException {
+    @DisplayName("HttpServletResponse_에_JwtValidationException_설정")
+    void HttpServletResponse_에_JwtValidationException_설정() throws ServletException, IOException {
         // given
         MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer access-token");
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain filterChain = new MockFilterChain();
 
-        BDDMockito.given(tokenProvider.parseToken(null))
+        BDDMockito.given(tokenProvider.parseToken(Mockito.any()))
                 .willThrow(new JwtValidationException(JWT_UNSUPPORTED));
 
         // when
-        jwtFilter.doFilterInternal(request, response, filterChain);
+        jwtFilter.doFilterInternal(request, response, new MockFilterChain());
 
         // then
-        assertEquals(JWT_UNSUPPORTED.getMessage(), response.getErrorMessage());
-        assertEquals(JWT_UNSUPPORTED.getHttpStatus().value(), response.getStatus());
+        assertTrue(response.getContentAsString().contains("지원하지 않는 JWT 토큰입니다."));
+        assertEquals(400, response.getStatus());
     }
 
     @Test
     @DisplayName("HttpServletResponse에_UsernameNotFoundException_설정")
     void HttpServletResponse에_UsernameNotFoundException_설정() throws ServletException, IOException {
         // given
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer access-token");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         BDDMockito.given(tokenProvider.parseToken(Mockito.any()))
@@ -101,15 +102,11 @@ public class JwtFilterTest {
                 .willThrow(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         // when
-        jwtFilter.doFilterInternal(
-                new MockHttpServletRequest(),
-                response,
-                new MockFilterChain()
-        );
+        jwtFilter.doFilterInternal(request, response, new MockFilterChain());
 
         // then
-        assertEquals("사용자를 찾을 수 없습니다.", response.getErrorMessage());
-        assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
+        assertTrue(response.getContentAsString().contains("사용자를 찾을 수 없습니다."));
+        assertEquals(401, response.getStatus());
     }
 
     @Test
