@@ -31,6 +31,22 @@ public class AuthenticationTest {
 
 
     @Test
+    @DisplayName("토큰_없는_요청")
+    void 토큰_없는_요청() throws Exception {
+        ResultActions unAuthRequest = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(AUTHENTICATED_URI)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        unAuthRequest.andExpectAll(
+                status().isUnauthorized(),
+                jsonPath("$.status").value(401),
+                jsonPath("$.message").value("JWT 토큰이 제공되지 않았습니다."),
+                jsonPath("$.data").isEmpty()
+        );
+    }
+
+    @Test
     @DisplayName("유효하지_않은_토큰_요청")
     void 유효하지_않은_토큰_요청() throws Exception {
         ResultActions unAuthRequest = mockMvc.perform(

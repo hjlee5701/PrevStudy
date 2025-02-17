@@ -33,6 +33,8 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = extractToken(request);
 
         if (token == null || token.trim().isEmpty()) {
+            // 토큰이 없기 때문에 SecurityContext 설정이 안된다.
+            // 만약 해당 요청이 보호된 리소스에 대한 요청이라면 AuthenticationEntryPoint 에서 처리된다.
             filterChain.doFilter(request, response);
             return;
         }
