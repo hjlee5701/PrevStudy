@@ -12,10 +12,12 @@ import com.hanghae.prevstudy.domain.board.service.BoardServiceImpl;
 import com.hanghae.prevstudy.domain.board.exception.BoardErrorCode;
 import com.hanghae.prevstudy.global.exception.GlobalExceptionHandler;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -67,45 +69,77 @@ public class BoardControllerTest {
 
     @Test
     @DisplayName("mockMVC_널_체크")
-    public void mockMvc_널_체크() throws Exception {
+    public void mockMvc_널_체크() {
         assertThat(boardController).isNotNull();
         assertThat(mockMvc).isNotNull();
     }
 
+    private ResultActions executeAddBoard(String title, String writer, String content, String password) throws Exception {
+        BoardAddRequest boardAddRequest = new BoardAddRequest(title, writer, content, password);
+        return mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(REQUEST_URL)
+                        .content(createRequestToJson(boardAddRequest))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+    }
 
     @Test
     @DisplayName("게시글_생성")
     void 게시글_생성() throws Exception {
-        BoardResponse boardResponse = BoardResponse.builder().build();
-        doReturn(boardResponse).when(boardService).add(any(BoardAddRequest.class));
-        final ResultActions addResult = mockMvc.perform(
-                MockMvcRequestBuilders
-                        .post(REQUEST_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(createRequestToJson(new BoardAddRequest(
-                                "제목", "작성자", "내용", "비밀번호"
-                        )))
+
+        // given
+        BoardResponse boardResponse = BoardResponse.builder()
+                .boardId(1L)
+                .title("더미 제목")
+                .writer("더미 작성자")
+                .content("더미 내용")
+                .regAt(new Date())
+                .modAt(new Date())
+                .build();
+
+        BDDMockito.given(boardService.add(any(BoardAddRequest.class)))
+                .willReturn(boardResponse);
+
+        // when
+        ResultActions addResult = executeAddBoard("제목", "작성자", "내용", "비밀번호");
+
+        // then
+        addResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("게시글 생성 성공"),
+                jsonPath("$.data.boardId").exists(),
+                jsonPath("$.data.title").isString(),
+                jsonPath("$.data.content").isString(),
+                jsonPath("$.data.writer").isString(),
+                jsonPath("$.data.regAt").exists(),
+                jsonPath("$.data.modAt").exists()
         );
-        addResult.andExpect(status().isOk());
     }
 
     @Test
     void 게시글_생성_요청값_에러() throws Exception {
-        // given
-        String json = createRequestToJson(
-                new BoardAddRequest("", "", "", "")
-        );
-
-        // when
-        ResultActions addResult = mockMvc.perform(
-                MockMvcRequestBuilders
-                        .post(REQUEST_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json));
+        // given, when
+        ResultActions blankTitle = executeAddBoard("", "작성자", "내용", "비밀번호");
+        ResultActions blankAll = executeAddBoard(" ", "", "", "");
 
         // then
-        addResult.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title").value("제목을 입력해 주세요."));
+        blankTitle.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value("400"),
+                jsonPath("$.message").value("[title: 제목을 입력해 주세요.]"),
+                jsonPath("$.data").isEmpty()
+        );
+        blankAll.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value("400"),
+                jsonPath("$.message").value(Matchers.containsString("title: 제목을 입력해 주세요.")),
+                jsonPath("$.message").value(Matchers.containsString("password: 비밀번호를 입력해 주세요.")),
+                jsonPath("$.message").value(Matchers.containsString("writer: 작성자를 입력해 주세요.")),
+                jsonPath("$.message").value(Matchers.containsString("content: 내용을 입력해 주세요."))
+        );
+
     }
 
     @Test
@@ -125,10 +159,12 @@ public class BoardControllerTest {
         );
 
         // then
-        getBoardResult
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(BoardErrorCode.BOARD_NOT_FOUND.getMessage()))
-                .andExpect(jsonPath("$.errCode").value(BoardErrorCode.BOARD_NOT_FOUND.getErrCode()));
+        getBoardResult.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value("400"),
+                jsonPath("$.message").value("게시글이 존재하지 않습니다."),
+                jsonPath("$.data").isEmpty()
+        );
     }
 
     @Test
@@ -148,70 +184,82 @@ public class BoardControllerTest {
         );
 
         // then
-        getBoardsResult
-                .andExpectAll(status().isOk());
+        getBoardsResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value("200"),
+                jsonPath("$.message").value("게시글 전체 조회 성공"),
+                jsonPath("$.data").isArray()
+        );
     }
 
+
+    private ResultActions executeUpdateBoard(String boardId, BoardUpdateRequest boardUpdateRequest) throws Exception {
+        return mockMvc.perform(
+                MockMvcRequestBuilders
+                        .patch(REQUEST_URL + "/" + boardId)
+                        .content(createRequestToJson(boardUpdateRequest))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+    }
 
     @Test
     @DisplayName("게시글_수정_실패 - 비밀번호 불일치")
     void 게시글_수정_실패() throws Exception {
         // given
-        Long boardId = 1L;
-        BoardUpdateRequest boardUpdateRequest
-                = new BoardUpdateRequest("제목2", "내용2", "비밀번호2");
-
-        doThrow(new PrevStudyException(BoardErrorCode.INVALID_PASSWORD))
-                .when(boardService).update(any(Long.class), any(BoardUpdateRequest.class));
-
+        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class)))
+                .willThrow(new PrevStudyException(BoardErrorCode.INVALID_PASSWORD));
 
         // when
-        ResultActions updateBoardResult = mockMvc.perform(
-                MockMvcRequestBuilders
-                        .patch(REQUEST_URL + "/" + boardId)
-                        .content(createRequestToJson(boardUpdateRequest))
-                        .contentType(MediaType.APPLICATION_JSON)
+        ResultActions updateBoardResult = executeUpdateBoard(
+                "1",
+                new BoardUpdateRequest("제목2", "내용2", "비밀번호2")
         );
-
         // then
-        updateBoardResult
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value(BoardErrorCode.INVALID_PASSWORD.getMessage()))
-                .andExpect(jsonPath("$.errCode").value(BoardErrorCode.INVALID_PASSWORD.getErrCode()));
+        updateBoardResult.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value(400),
+                jsonPath("$.message").value("비밀번호가 일치하지 않습니다."),
+                jsonPath("$.data").isEmpty()
+        );
     }
+
 
     @Test
     @DisplayName("게시글_수정_성공")
     void 게시글_수정_성공() throws Exception {
         // given
-        Long boardId = 1L;
-        BoardUpdateRequest boardUpdateRequest
-                = new BoardUpdateRequest("제목2", "내용2", "비밀번호");
-
         BoardResponse boardResponse = BoardResponse.builder()
-                .boardId(boardId)
-                .title(boardUpdateRequest.getTitle())
-                .writer("작성자")
-                .content(boardUpdateRequest.getContent())
+                .boardId(1L)
+                .title("더미 제목")
+                .writer("더미 작성자")
+                .content("더미 내용")
                 .regAt(new Date())
                 .modAt(new Date())
                 .build();
 
-        doReturn(boardResponse).when(boardService).update(any(Long.class), any(BoardUpdateRequest.class));
-
+        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class)))
+                .willReturn(boardResponse);
 
         // when
-        ResultActions updateBoardResult = mockMvc.perform(
-                MockMvcRequestBuilders
-                        .patch(REQUEST_URL + "/" + boardId)
-                        .content(createRequestToJson(boardUpdateRequest))
-                        .contentType(MediaType.APPLICATION_JSON)
+        ResultActions updateBoardResult = executeUpdateBoard(
+                "1",
+                new BoardUpdateRequest("제목 수정", "내용 수정", "비밀번호")
         );
 
         // then
-        updateBoardResult
-                .andExpectAll(status().isOk());
+        updateBoardResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("게시글 수정 성공"),
+                jsonPath("$.data.boardId").exists(),
+                jsonPath("$.data.title").isString(),
+                jsonPath("$.data.content").isString(),
+                jsonPath("$.data.writer").isString(),
+                jsonPath("$.data.regAt").exists(),
+                jsonPath("$.data.modAt").exists()
+        );
     }
+
 
     @Test
     @DisplayName("게시글_삭제")
@@ -220,14 +268,18 @@ public class BoardControllerTest {
         Long boardId = 1L;
 
         // when
-        ResultActions getBoardsResult = mockMvc.perform(
+        ResultActions deleteResult = mockMvc.perform(
                 MockMvcRequestBuilders
                         .delete(REQUEST_URL + "/" + boardId)
                         .contentType(MediaType.APPLICATION_JSON)
         );
         // then
-        getBoardsResult
-                .andExpectAll(status().isOk());
+        deleteResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("게시글 삭제 성공"),
+                jsonPath("$.data").isEmpty()
+        );
     }
     
     
