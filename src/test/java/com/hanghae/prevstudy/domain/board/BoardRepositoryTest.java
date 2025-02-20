@@ -2,6 +2,8 @@ package com.hanghae.prevstudy.domain.board;
 
 import com.hanghae.prevstudy.domain.board.entity.Board;
 import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
+import com.hanghae.prevstudy.domain.member.entity.Member;
+import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,8 @@ public class BoardRepositoryTest {
     @Autowired
     private BoardRepository boardRepository;
 
+    @Autowired
+    private MemberRepository memberRepository;
     @Test
     @DisplayName("BoardRepository_널_체크")
     void BoardRepository_isNull() {
@@ -28,9 +32,10 @@ public class BoardRepositoryTest {
     }
 
     private Board newBoard() {
+        Member member = memberRepository.save(Member.builder().build());
         return Board.builder()
                 .title("제목")
-                .writer("작성자")
+                .writer(member)
                 .content("내용")
                 .password("비밀번호")
                 .build();
@@ -71,6 +76,7 @@ public class BoardRepositoryTest {
         Board board3 = newBoard();
 
         boardRepository.save(board1);
+        boardRepository.flush();
         boardRepository.save(board2);
         boardRepository.save(board3);
 
