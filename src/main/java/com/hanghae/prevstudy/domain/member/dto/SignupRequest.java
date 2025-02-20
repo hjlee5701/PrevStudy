@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class MemberAddRequest {
+public class SignupRequest {
 
     @Pattern(
             regexp = "^[a-z0-9]{4,10}$",

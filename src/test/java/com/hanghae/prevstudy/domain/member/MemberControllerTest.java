@@ -8,7 +8,7 @@ import com.hanghae.prevstudy.domain.member.controller.MemberController;
 import com.hanghae.prevstudy.domain.member.dto.AuthResultDto;
 import com.hanghae.prevstudy.domain.member.dto.LoginRequest;
 import com.hanghae.prevstudy.domain.member.dto.LoginResponse;
-import com.hanghae.prevstudy.domain.member.dto.MemberAddRequest;
+import com.hanghae.prevstudy.domain.member.dto.SignupRequest;
 import com.hanghae.prevstudy.domain.member.exception.MemberErrorCode;
 import com.hanghae.prevstudy.domain.member.service.MemberService;
 import com.hanghae.prevstudy.domain.security.TokenDto;
@@ -107,12 +107,12 @@ public class MemberControllerTest {
     }
 
     private ResultActions executeSignup(String username, String password) throws Exception {
-        MemberAddRequest memberAddRequest = new MemberAddRequest(username, password);
+        SignupRequest signupRequest = new SignupRequest(username, password);
 
         return mockMvc.perform(
                 MockMvcRequestBuilders
                         .post(REQUEST_URL)
-                        .content(createRequestToJson(memberAddRequest))
+                        .content(createRequestToJson(signupRequest))
                         .contentType(MediaType.APPLICATION_JSON)
         );
     }

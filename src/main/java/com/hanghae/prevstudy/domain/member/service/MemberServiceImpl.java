@@ -6,7 +6,7 @@ import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
 import com.hanghae.prevstudy.domain.member.dto.AuthResultDto;
 import com.hanghae.prevstudy.domain.member.dto.LoginRequest;
 import com.hanghae.prevstudy.domain.member.dto.LoginResponse;
-import com.hanghae.prevstudy.domain.member.dto.MemberAddRequest;
+import com.hanghae.prevstudy.domain.member.dto.SignupRequest;
 import com.hanghae.prevstudy.domain.security.TokenDto;
 import com.hanghae.prevstudy.domain.security.TokenProvider;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
@@ -22,16 +22,16 @@ public class MemberServiceImpl implements MemberService {
     private final TokenProvider tokenProvider;
 
     @Override
-    @Transactional
-    public void signup(MemberAddRequest memberAddRequest) {
+    @Transactional  
+    public void signup(SignupRequest signupRequest) {
 
-        if (isDuplicateUsername(memberAddRequest.getUsername())) {
+        if (isDuplicateUsername(signupRequest.getUsername())) {
             throw new PrevStudyException(MemberErrorCode.DUPLICATE_USERNAME);
         }
 
         Member newMember = Member.builder()
-                .username(memberAddRequest.getUsername())
-                .password(memberAddRequest.getPassword())
+                .username(signupRequest.getUsername())
+                .password(signupRequest.getPassword())
                 .build();
 
         memberRepository.save(newMember);
