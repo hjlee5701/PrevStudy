@@ -53,7 +53,7 @@ dependencies {
 
     // ✅ MySQL (주석 해제하면 사용 가능)
 //    runtimeOnly 'com.mysql:mysql-connector-j'
-//    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.h2database:h2'
 }
 
 
