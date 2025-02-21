@@ -6,6 +6,7 @@ import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import com.hanghae.prevstudy.domain.board.entity.Board;
 import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
 import com.hanghae.prevstudy.domain.board.exception.BoardErrorCode;
+import com.hanghae.prevstudy.domain.member.entity.Member;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class BoardServiceImpl implements BoardService {
     public BoardResponse add(BoardAddRequest boardAddRequest) {
         Board board = Board.builder()
                 .title(boardAddRequest.getTitle())
-                .writer(boardAddRequest.getWriter())
+                .writer(Member.builder().username("tester").build())
                 .content(boardAddRequest.getContent())
                 .password(boardAddRequest.getPassword())
                 .build();
@@ -32,7 +33,7 @@ public class BoardServiceImpl implements BoardService {
         return BoardResponse.builder()
                 .boardId(savedBoard.getId())
                 .title(savedBoard.getTitle())
-                .writer(savedBoard.getWriter())
+                .writer(board.getWriter().getUsername())
                 .content(savedBoard.getContent())
                 .regAt(savedBoard.getRegAt())
                 .modAt(savedBoard.getModAt())
@@ -47,7 +48,7 @@ public class BoardServiceImpl implements BoardService {
         return BoardResponse.builder()
                 .boardId(findBoard.getId())
                 .title(findBoard.getTitle())
-                .writer(findBoard.getWriter())
+                .writer(findBoard.getWriter().getUsername())
                 .content(findBoard.getContent())
                 .regAt(findBoard.getRegAt())
                 .modAt(findBoard.getModAt())
@@ -62,7 +63,7 @@ public class BoardServiceImpl implements BoardService {
             BoardResponse response = BoardResponse.builder()
                     .boardId(board.getId())
                     .title(board.getTitle())
-                    .writer(board.getWriter())
+                    .writer("작성자")
                     .content(board.getContent())
                     .regAt(board.getRegAt())
                     .modAt(board.getModAt())
@@ -89,7 +90,7 @@ public class BoardServiceImpl implements BoardService {
         return BoardResponse.builder()
                 .boardId(findBoard.getId())
                 .title(findBoard.getTitle())
-                .writer(findBoard.getWriter())
+                .writer("작성자")
                 .content(findBoard.getContent())
                 .regAt(findBoard.getRegAt())
                 .modAt(findBoard.getModAt())

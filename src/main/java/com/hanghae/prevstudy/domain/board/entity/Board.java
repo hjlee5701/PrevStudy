@@ -1,5 +1,6 @@
 package com.hanghae.prevstudy.domain.board.entity;
 
+import com.hanghae.prevstudy.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +23,10 @@ public class Board {
     private Long id;
 
     private String title;
-    private String writer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MEMBER_ID")
+    private Member writer;
     private String content;
     private String password;
 

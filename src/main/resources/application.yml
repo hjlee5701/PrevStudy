@@ -18,4 +18,5 @@ spring:
 # 테스트용
 jwt:
   secret: and0LXRlc3QtYWxqamFiYWVnaS1qd3QtdGVzdC1hbGpqYWJhZWdpLWp3dC10ZXN0LWFsamphYmFlZ2ktand0LXRlc3QtYWxqamFiYWVnaS1qd3QtdGVzdC1hbGpqYWJhZWdpLWp3dC10ZXN0LWFsamphYmFlZ2ktand0LXRlc3QtYWxqamFiYWVnaS1qd3QtdGVzdC1hbGpqYWJhZWdp
-  tokenValidity: 86400
+  accessTokenExpirationMs: 300
+  refreshTokenExpirationMs: 300

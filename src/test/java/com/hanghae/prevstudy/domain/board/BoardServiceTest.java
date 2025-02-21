@@ -6,6 +6,7 @@ import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import com.hanghae.prevstudy.domain.board.entity.Board;
 import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
 import com.hanghae.prevstudy.domain.board.service.BoardServiceImpl;
+import com.hanghae.prevstudy.domain.member.entity.Member;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,26 +36,13 @@ public class BoardServiceTest {
     @InjectMocks
     private BoardServiceImpl boardService;
 
-    private Board newBoard() {
-        return Board.builder()
-                .id(1L)
-                .title("제목")
-                .writer("작성자")
-                .content("내용")
-                .password("비밀번호")
-                .regAt(new Date())
-                .build();
-    }
-
-
     @Test
     @DisplayName("게시글_생성")
     void 게시글_생성() {
-
         // given
         Date now = new Date();
         Board newBoard
-                = new Board(1L, "제목", "작성자", "내용", "비밀번호", now, now);
+                = new Board(1L, "제목", Member.builder().username("tester").build(), "내용", "비밀번호", now, now);
         when(boardRepository.save(any(Board.class))).thenReturn(newBoard);
 
         // when
@@ -65,7 +53,7 @@ public class BoardServiceTest {
         assertThat(boardResponseDto).isNotNull();
         assertThat(boardResponseDto)
                 .extracting("boardId", "title", "writer", "content")
-                .containsExactly(newBoard.getId(), newBoard.getTitle(), newBoard.getWriter(), newBoard.getContent());
+                .containsExactly(newBoard.getId(), newBoard.getTitle(), newBoard.getWriter().getUsername(), newBoard.getContent());
     }
 
     @Test
@@ -88,8 +76,9 @@ public class BoardServiceTest {
     void 게시글_상세_조회_성공() {
         // given
         Date now = new Date();
+        Member writer = Member.builder().username("test").build();
         Board savedBoard
-                = new Board(1L, "제목", "작성자", "내용", "비밀번호", now, now);
+                = new Board(1L, "제목", writer, "내용", "비밀번호", now, now);
 
         when(boardRepository.findById(1L)).thenReturn(Optional.of(savedBoard));
 
@@ -99,7 +88,7 @@ public class BoardServiceTest {
         // then
         assertThat(findBoardDto)
                 .extracting("boardId", "title", "writer", "content")
-                .containsExactly(savedBoard.getId(), savedBoard.getTitle(), savedBoard.getWriter(), savedBoard.getContent());
+                .containsExactly(savedBoard.getId(), savedBoard.getTitle(), savedBoard.getWriter().getUsername(), savedBoard.getContent());
 
         verify(boardRepository, times(1)).findById(savedBoard.getId());
     }
@@ -110,9 +99,9 @@ public class BoardServiceTest {
         // given
         Date now = new Date();
         Board findBoard1
-                = new Board(1L, "제목", "작성자", "내용", "비밀번호", now, now);
+                = new Board(1L, "제목", Member.builder().build(), "내용", "비밀번호", now, now);
         Board findBoard2
-                = new Board(2L, "제목", "작성자", "내용", "비밀번호", now, now);
+                = new Board(2L, "제목", Member.builder().build(), "내용", "비밀번호", now, now);
 
         List<Board> findBoards = List.of(findBoard1, findBoard2);
 
@@ -143,7 +132,7 @@ public class BoardServiceTest {
     void 게시글_비밀번호_불일치() {
         // Given
         Date now = new Date();
-        Board board = new Board(1L, "제목", "작성자", "내용", "비밀번호", now, now);
+        Board board = new Board(1L, "제목", Member.builder().build(), "내용", "비밀번호", now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", "비밀번호2");
 
@@ -164,7 +153,7 @@ public class BoardServiceTest {
     void 게시글_수정_성공() {
         // given
         Date now = new Date();
-        Board beforeUpdateBoard = new Board(1L, "제목", "작성자", "내용", "비밀번호", now, now);
+        Board beforeUpdateBoard = new Board(1L, "제목", Member.builder().build(), "내용", "비밀번호", now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", beforeUpdateBoard.getPassword());
 
@@ -205,7 +194,8 @@ public class BoardServiceTest {
     @DisplayName("게시글_삭제_성공")
     void 게시글_삭제_성공() {
         // given
-        Board board = newBoard();
+        Date now = new Date();
+        Board board = new Board(1L, "제목", Member.builder().build(), "내용", "비밀번호", now, now);
         Long deleteBoard = board.getId();
         doReturn(Optional.of(board)).when(boardRepository).findById(any(Long.class));
 
