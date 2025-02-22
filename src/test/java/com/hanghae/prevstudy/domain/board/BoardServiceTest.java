@@ -159,19 +159,39 @@ public class BoardServiceTest {
     }
 
     @Test
-    @DisplayName("게시글 수정 실패 - 비밀번호 불일치")
-    void 게시글_비밀번호_불일치() {
-        // Given
+    @DisplayName("게시글 수정 실패 - 작성자 불일치")
+    void 게시글_작성자_불일치로_수정_실패() {
+        // given
         Date now = new Date();
-        Board board = new Board(1L, "제목", Member.builder().build(), "내용", "비밀번호", now, now);
+        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", "비밀번호2");
 
-        when(boardRepository.findById(1L)).thenReturn(Optional.of(board)); // Given
+        BDDMockito.given(boardRepository.findById(anyLong())).willReturn(Optional.of(board));
 
-        // When
+        // when
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.update(1L, boardUpdateRequest, UserDetailsImpl.builder().build()));
+                () -> boardService.update(anyLong(), boardUpdateRequest, UserDetailsImpl.builder().id(999L).build()));
+
+        // then
+        assertThat("게시글에 대한 접근 권한이 없습니다.").isEqualTo(exception.getMessage());
+        assertThat(HttpStatus.FORBIDDEN).isEqualTo(exception.getHttpStatus());
+    }
+
+    @Test
+    @DisplayName("게시글 수정 실패 - 비밀번호 불일치")
+    void 게시글_비밀번호_불일치() {
+        // given
+        Date now = new Date();
+        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+
+        BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", "비밀번호2");
+
+        BDDMockito.given(boardRepository.findById(anyLong())).willReturn(Optional.of(board));
+
+        // when
+        PrevStudyException exception = assertThrows(PrevStudyException.class,
+                () -> boardService.update(1L, boardUpdateRequest, UserDetailsImpl.builder().id(1L).build()));
 
         // then
         assertThat("비밀번호가 일치하지 않습니다.").isEqualTo(exception.getMessage());
@@ -184,14 +204,14 @@ public class BoardServiceTest {
     void 게시글_수정_성공() {
         // given
         Date now = new Date();
-        Board beforeUpdateBoard = new Board(1L, "제목", Member.builder().build(), "내용", "비밀번호", now, now);
+        Board beforeUpdateBoard = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", beforeUpdateBoard.getPassword());
 
         when(boardRepository.findById(1L)).thenReturn(Optional.of(beforeUpdateBoard));
 
         // when
-        BoardResponse boardResponse = boardService.update(1L, boardUpdateRequest, UserDetailsImpl.builder().build());
+        BoardResponse boardResponse = boardService.update(1L, boardUpdateRequest, UserDetailsImpl.builder().id(1L).build());
 
         // then
         assertAll(

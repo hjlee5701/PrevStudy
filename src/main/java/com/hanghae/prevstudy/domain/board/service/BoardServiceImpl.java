@@ -96,7 +96,12 @@ public class BoardServiceImpl implements BoardService {
 
         Member writer = findBoard.getWriter();
 
+        // 작성자 불일치
+        if (!isWriterMatch(userDetails.getId(), writer.getId())) {
+            throw new PrevStudyException(BoardErrorCode.FORBIDDEN_ACCESS);
+        }
 
+        // 비밀번호 불일치
         String findBoardPassword = findBoard.getPassword();
         if (!isPasswordMatch(findBoardPassword, boardUpdateRequest.getPassword())) {
             throw new PrevStudyException(BoardErrorCode.INVALID_PASSWORD);
@@ -108,7 +113,7 @@ public class BoardServiceImpl implements BoardService {
         return BoardResponse.builder()
                 .boardId(findBoard.getId())
                 .title(findBoard.getTitle())
-                .writer("작성자")
+                .writer(writer.getUsername())
                 .content(findBoard.getContent())
                 .regAt(findBoard.getRegAt())
                 .modAt(findBoard.getModAt())
