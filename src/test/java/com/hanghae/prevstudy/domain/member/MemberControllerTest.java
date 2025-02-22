@@ -107,7 +107,7 @@ public class MemberControllerTest {
     }
 
     private ResultActions executeSignup(String username, String password) throws Exception {
-        SignupRequest signupRequest = new SignupRequest(username, password);
+        SignupRequest signupRequest = new SignupRequest(username, password, false);
 
         return mockMvc.perform(
                 MockMvcRequestBuilders
@@ -163,7 +163,7 @@ public class MemberControllerTest {
     void 로그인_성공() throws Exception {
         // given
         TokenDto tokenDto = new TokenDto("1", "accessTokenValue", "refreshTokenValue");
-        LoginResponse loginResponse = new LoginResponse(1L);
+        LoginResponse loginResponse = new LoginResponse(1L, false);
 
         BDDMockito.given(memberService.login(any(LoginRequest.class)))
                 .willReturn(new AuthResultDto(tokenDto, loginResponse));

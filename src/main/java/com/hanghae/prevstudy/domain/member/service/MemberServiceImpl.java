@@ -53,7 +53,7 @@ public class MemberServiceImpl implements MemberService {
         }
         TokenDto tokenDto = tokenProvider.createToken(member.getId().toString());
 
-        return new AuthResultDto(tokenDto, new LoginResponse(member.getId()));
+        return new AuthResultDto(tokenDto, new LoginResponse(member.getId(), member.isAdmin()));
     }
 
     private boolean isValidPassword(String storedPassword, String inputPassword) {

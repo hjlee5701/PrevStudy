@@ -22,4 +22,7 @@ public class Member {
     @Column(unique = true)
     private String username;
     private String password;
+
+    @Column
+    private boolean isAdmin;
 }

@@ -40,7 +40,7 @@ public class MemberServiceTest {
     @DisplayName("회원_가입_username_중복")
     void 회원_가입_username_중복() {
         // given
-        SignupRequest signupRequest = new SignupRequest("회원", "비밀번호");
+        SignupRequest signupRequest = new SignupRequest("회원", "비밀번호", false);
         Member newMember = Member.builder()
                 .id(1L)
                 .username("회원")
@@ -63,7 +63,7 @@ public class MemberServiceTest {
     @DisplayName("회원_가입_성공")
     void 회원_가입_성공() {
         // given
-        SignupRequest signupRequest = new SignupRequest("회원", "비밀번호");
+        SignupRequest signupRequest = new SignupRequest("회원", "비밀번호", false);
         Member newMember = Member.builder()
                 .id(1L)
                 .username("회원")
