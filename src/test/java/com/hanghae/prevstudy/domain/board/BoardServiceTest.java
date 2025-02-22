@@ -77,7 +77,7 @@ public class BoardServiceTest {
 
         // when
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.getBoard(999L));
+                () -> boardService.getBoard(999L, UserDetailsImpl.builder().id(1L).build()));
 
         // then
         assertThat("게시글이 존재하지 않습니다.").isEqualTo(exception.getMessage());
@@ -96,7 +96,7 @@ public class BoardServiceTest {
         when(boardRepository.findById(1L)).thenReturn(Optional.of(savedBoard));
 
         // when
-        BoardResponse findBoardDto = boardService.getBoard(1L);
+        BoardResponse findBoardDto = boardService.getBoard(1L, UserDetailsImpl.builder().id(1L).build());
 
         // then
         assertThat(findBoardDto)

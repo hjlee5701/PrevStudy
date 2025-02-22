@@ -47,14 +47,17 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public BoardResponse getBoard(Long boardId) {
+    @Transactional
+    public BoardResponse getBoard(Long boardId, UserDetailsImpl userDetails) {
+
         Board findBoard = boardRepository.findById(boardId)
                 .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
+        Member writer = findBoard.getWriter();
 
         return BoardResponse.builder()
                 .boardId(findBoard.getId())
                 .title(findBoard.getTitle())
-                .writer(findBoard.getWriter().getUsername())
+                .writer(writer.getUsername())
                 .content(findBoard.getContent())
                 .regAt(findBoard.getRegAt())
                 .modAt(findBoard.getModAt())

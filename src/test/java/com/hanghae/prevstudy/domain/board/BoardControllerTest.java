@@ -149,7 +149,7 @@ public class BoardControllerTest {
         String boardId = "1";
 
         doThrow(new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND))
-                .when(boardService).getBoard(any(Long.class));
+                .when(boardService).getBoard(any(Long.class), null);
 
         // when
         ResultActions getBoardResult = mockMvc.perform(

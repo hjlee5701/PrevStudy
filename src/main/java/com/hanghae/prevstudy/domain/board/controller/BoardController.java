@@ -34,7 +34,7 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ResponseEntity<ApiResponse<BoardResponse>> getBoard(@PathVariable("boardId") Long boardId) {
         return ResponseEntity.ok(
-                ApiResponse.success("게시글 상세 조회 성공", boardService.getBoard(boardId)));
+                ApiResponse.success("게시글 상세 조회 성공", boardService.getBoard(boardId, null)));
     }
 
 

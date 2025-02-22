@@ -10,7 +10,7 @@ import java.util.List;
 public interface BoardService {
     BoardResponse add(BoardAddRequest board, UserDetailsImpl userDetails);
 
-    BoardResponse getBoard(Long boardId);
+    BoardResponse getBoard(Long boardId, UserDetailsImpl userDetails);
 
     List<BoardResponse> getBoards();
 
