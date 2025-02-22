@@ -129,10 +129,14 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public void delete(Long boardId) {
+    @Transactional
+    public void delete(Long boardId, UserDetailsImpl userDetails) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
 
+        if (!isWriterMatch(userDetails.getId(), board.getWriter().getId())) {
+            throw new PrevStudyException(BoardErrorCode.FORBIDDEN_ACCESS);
+        }
         boardRepository.delete(board);
     }
 }

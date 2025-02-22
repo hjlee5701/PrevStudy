@@ -54,7 +54,7 @@ public class BoardController {
 
     @DeleteMapping("/{boardId}")
     public ResponseEntity<ApiResponse<Void>> deleteBoard(@PathVariable("boardId") Long boardId) {
-        boardService.delete(boardId);
+        boardService.delete(boardId, null);
         return ResponseEntity.ok(
                 ApiResponse.success("게시글 삭제 성공"));
     }

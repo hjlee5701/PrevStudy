@@ -16,5 +16,5 @@ public interface BoardService {
 
     BoardResponse update(Long boardId, BoardUpdateRequest boardUpdateRequest, UserDetailsImpl userDetails);
 
-    void delete(Long boardId);
+    void delete(Long boardId, UserDetailsImpl userDetails);
 }

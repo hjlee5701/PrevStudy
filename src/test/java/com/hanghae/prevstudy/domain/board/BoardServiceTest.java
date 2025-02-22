@@ -232,7 +232,7 @@ public class BoardServiceTest {
 
         // when
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.delete(1L));
+                () -> boardService.delete(1L, null));
 
         // then
         assertThat("게시글이 존재하지 않습니다.").isEqualTo(exception.getMessage());
@@ -242,16 +242,34 @@ public class BoardServiceTest {
     }
 
     @Test
+    @DisplayName("게시글 삭제 실패 - 작성자 불일치")
+    void 게시글_작성자_불일치로_삭제_실패() {
+        // given
+        Date now = new Date();
+        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+
+        BDDMockito.given(boardRepository.findById(anyLong())).willReturn(Optional.of(board));
+
+        // when
+        PrevStudyException exception = assertThrows(PrevStudyException.class,
+                () -> boardService.delete(anyLong(), UserDetailsImpl.builder().id(999L).build()));
+
+        // then
+        assertThat("게시글에 대한 접근 권한이 없습니다.").isEqualTo(exception.getMessage());
+        assertThat(HttpStatus.FORBIDDEN).isEqualTo(exception.getHttpStatus());
+    }
+
+    @Test
     @DisplayName("게시글_삭제_성공")
     void 게시글_삭제_성공() {
         // given
         Date now = new Date();
-        Board board = new Board(1L, "제목", Member.builder().build(), "내용", "비밀번호", now, now);
+        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
         Long deleteBoard = board.getId();
         doReturn(Optional.of(board)).when(boardRepository).findById(any(Long.class));
 
         // when
-        boardService.delete(deleteBoard);
+        boardService.delete(deleteBoard, UserDetailsImpl.builder().id(1L).build());
 
         // then
         verify(boardRepository, times(1)).delete(board);
