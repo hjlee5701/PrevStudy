@@ -1,4 +1,4 @@
-package com.hanghae.prevstudy.global;
+package com.hanghae.prevstudy.global.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;

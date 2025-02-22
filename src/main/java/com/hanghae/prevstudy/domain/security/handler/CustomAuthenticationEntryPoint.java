@@ -1,6 +1,7 @@
-package com.hanghae.prevstudy.domain.security;
+package com.hanghae.prevstudy.domain.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae.prevstudy.global.exception.errorCode.JwtErrorCode;
 import com.hanghae.prevstudy.global.response.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

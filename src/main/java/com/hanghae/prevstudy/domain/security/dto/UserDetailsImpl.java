@@ -1,4 +1,4 @@
-package com.hanghae.prevstudy.domain.security;
+package com.hanghae.prevstudy.domain.security.dto;
 
 import lombok.Builder;
 import lombok.Getter;

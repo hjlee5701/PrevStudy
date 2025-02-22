@@ -1,7 +1,8 @@
-package com.hanghae.prevstudy.global;
+package com.hanghae.prevstudy.global.resolver;
 
-import com.hanghae.prevstudy.domain.member.exception.MemberErrorCode;
-import com.hanghae.prevstudy.domain.security.UserDetailsImpl;
+import com.hanghae.prevstudy.global.annotation.AuthMemberInfo;
+import com.hanghae.prevstudy.global.exception.errorCode.MemberErrorCode;
+import com.hanghae.prevstudy.domain.security.dto.UserDetailsImpl;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;

@@ -1,5 +1,9 @@
 package com.hanghae.prevstudy.domain.security;
 
+import com.hanghae.prevstudy.domain.security.dto.UserDetailsImpl;
+import com.hanghae.prevstudy.domain.security.service.TokenProvider;
+import com.hanghae.prevstudy.domain.security.service.UserDetailsServiceImpl;
+import com.hanghae.prevstudy.global.exception.JwtValidationException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.impl.DefaultClaims;
 import jakarta.servlet.ServletException;
@@ -23,7 +27,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.hanghae.prevstudy.domain.security.JwtErrorCode.JWT_UNSUPPORTED;
+import static com.hanghae.prevstudy.global.exception.errorCode.JwtErrorCode.JWT_UNSUPPORTED;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 
@@ -37,7 +41,7 @@ public class JwtFilterTest {
     private TokenProvider tokenProvider;
 
     @Mock
-    private UserDetailsService userDetailsService;
+    private UserDetailsServiceImpl userDetailsService;
 
     @Test
     @DisplayName("토큰_추출_실패")
@@ -124,7 +128,7 @@ public class JwtFilterTest {
                 .willReturn(claims);
 
         BDDMockito.given(userDetailsService.loadUserByUsername(anyString()))
-                .willReturn(new UserDetailsImpl(1L, "회원", "비밀번호", null));
+                .willReturn(UserDetailsImpl.builder().id(1L).username("회원").password("비밀번호").build());
 
         // when
         jwtFilter.doFilterInternal(request, new MockHttpServletResponse(), new MockFilterChain());

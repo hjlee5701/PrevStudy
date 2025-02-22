@@ -1,7 +1,8 @@
 package com.hanghae.prevstudy.domain.security;
 
 import com.hanghae.prevstudy.domain.member.dto.SignupRequest;
-import com.hanghae.prevstudy.global.AuthMemberInfo;
+import com.hanghae.prevstudy.domain.security.dto.UserDetailsImpl;
+import com.hanghae.prevstudy.global.annotation.AuthMemberInfo;
 import com.hanghae.prevstudy.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

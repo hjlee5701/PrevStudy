@@ -4,8 +4,6 @@ import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
 import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
 import com.hanghae.prevstudy.domain.board.service.BoardService;
 import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
-import com.hanghae.prevstudy.domain.security.UserDetailsImpl;
-import com.hanghae.prevstudy.global.AuthMemberInfo;
 import com.hanghae.prevstudy.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

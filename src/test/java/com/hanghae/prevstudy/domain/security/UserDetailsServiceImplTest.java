@@ -1,8 +1,8 @@
 package com.hanghae.prevstudy.domain.security;
 
 import com.hanghae.prevstudy.domain.member.entity.Member;
-import com.hanghae.prevstudy.domain.member.entity.Role;
 import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
+import com.hanghae.prevstudy.domain.security.service.UserDetailsServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

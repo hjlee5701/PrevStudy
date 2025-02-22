@@ -1,5 +1,7 @@
-package com.hanghae.prevstudy.domain.security;
+package com.hanghae.prevstudy.domain.security.service;
 
+import com.hanghae.prevstudy.domain.security.dto.TokenDto;
+import com.hanghae.prevstudy.global.exception.JwtValidationException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -12,7 +14,7 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
-import static com.hanghae.prevstudy.domain.security.JwtErrorCode.*;
+import static com.hanghae.prevstudy.global.exception.errorCode.JwtErrorCode.*;
 
 @Component
 public class TokenProvider {

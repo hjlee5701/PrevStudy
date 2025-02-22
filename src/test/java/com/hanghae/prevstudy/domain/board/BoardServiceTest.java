@@ -8,7 +8,7 @@ import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
 import com.hanghae.prevstudy.domain.board.service.BoardServiceImpl;
 import com.hanghae.prevstudy.domain.member.entity.Member;
 import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
-import com.hanghae.prevstudy.domain.security.UserDetailsImpl;
+import com.hanghae.prevstudy.domain.security.dto.UserDetailsImpl;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
