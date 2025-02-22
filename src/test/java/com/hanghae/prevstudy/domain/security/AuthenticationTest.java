@@ -84,6 +84,31 @@ public class AuthenticationTest {
         );
     }
 
+    @Test
+    @DisplayName("AuthMemberArgumentResolver_클래스타입_예외")
+    void AuthMemberArgumentResolver_클래스타입_예외() throws Exception {
+        // given
+        String testToken = tokenProvider.createToken("0").getAccessToken();
+        BDDMockito.given(userDetailsService.loadUserByUsername(anyString()))
+                .willReturn(UserDetailsImpl.builder().build());
+
+        // when
+        ResultActions authRequest = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(AUTHENTICATED_ERROR_URI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+ testToken)
+        );
+
+        // then
+        authRequest.andExpectAll(
+                status().isInternalServerError(),
+                jsonPath("$.status").value(500),
+                jsonPath("$.message").value("서버 설정 오류입니다. 관리자에게 문의하세요."),
+                jsonPath("$.data").isEmpty()
+        );
+    }
+
 
     
 
