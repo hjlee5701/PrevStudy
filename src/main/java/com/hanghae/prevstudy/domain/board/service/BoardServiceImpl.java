@@ -78,7 +78,7 @@ public class BoardServiceImpl implements BoardService {
             BoardResponse response = BoardResponse.builder()
                     .boardId(board.getId())
                     .title(board.getTitle())
-                    .writer("작성자")
+                    .writer(board.getWriter().getUsername())
                     .content(board.getContent())
                     .regAt(board.getRegAt())
                     .modAt(board.getModAt())

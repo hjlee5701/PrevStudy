@@ -130,9 +130,9 @@ public class BoardServiceTest {
         // given
         Date now = new Date();
         Board findBoard1
-                = new Board(1L, "제목", Member.builder().build(), "내용", "비밀번호", now, now);
+                = new Board(1L, "제목", Member.builder().username("tester1").build(), "내용", "비밀번호", now, now);
         Board findBoard2
-                = new Board(2L, "제목", Member.builder().build(), "내용", "비밀번호", now, now);
+                = new Board(2L, "제목", Member.builder().username("tester2").build(), "내용", "비밀번호", now, now);
 
         List<Board> findBoards = List.of(findBoard1, findBoard2);
 
