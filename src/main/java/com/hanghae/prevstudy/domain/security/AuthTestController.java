@@ -5,11 +5,13 @@ import com.hanghae.prevstudy.domain.security.dto.UserDetailsImpl;
 import com.hanghae.prevstudy.global.annotation.AuthMemberInfo;
 import com.hanghae.prevstudy.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Profile("test")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/test")
