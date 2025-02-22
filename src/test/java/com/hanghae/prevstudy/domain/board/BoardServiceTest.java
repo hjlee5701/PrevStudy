@@ -107,7 +107,7 @@ public class BoardServiceTest {
     void 게시글_상세_조회_성공() {
         // given
         Date now = new Date();
-        Member writer = Member.builder().username("test").build();
+        Member writer = Member.builder().id(1L).username("test").build();
         Board savedBoard
                 = new Board(1L, "제목", writer, "내용", "비밀번호", now, now);
 
