@@ -52,7 +52,13 @@ public class BoardServiceImpl implements BoardService {
 
         Board findBoard = boardRepository.findById(boardId)
                 .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
+
+        Long loginMemberId = userDetails.getId();
         Member writer = findBoard.getWriter();
+
+        if (!isWriterMatch(loginMemberId, writer.getId())) {
+            throw new PrevStudyException(BoardErrorCode.FORBIDDEN_ACCESS);
+        }
 
         return BoardResponse.builder()
                 .boardId(findBoard.getId())
@@ -108,6 +114,10 @@ public class BoardServiceImpl implements BoardService {
 
     public boolean isPasswordMatch(String findBoardPassword, String updateRequestPassword) {
         return findBoardPassword.equals(updateRequestPassword);
+    }
+
+    public boolean isWriterMatch(Long loginMemberId, Long writerId) {
+        return loginMemberId.equals(writerId);
     }
 
     @Override

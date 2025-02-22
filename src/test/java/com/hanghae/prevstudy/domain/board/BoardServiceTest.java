@@ -70,7 +70,7 @@ public class BoardServiceTest {
     }
 
     @Test
-    @DisplayName("게시글_상세_조회_실패")
+    @DisplayName("게시글_상세_조회_실패 - Board 존재 안함")
     void 게시글_상세_조회_실패() {
         // given
         when(boardRepository.findById(999L)).thenReturn(Optional.empty());
@@ -82,6 +82,24 @@ public class BoardServiceTest {
         // then
         assertThat("게시글이 존재하지 않습니다.").isEqualTo(exception.getMessage());
         assertThat(HttpStatus.BAD_REQUEST).isEqualTo(exception.getHttpStatus());
+    }
+
+    @Test
+    @DisplayName("게시글_작성자_불일치로_상세_조회_실패")
+    void 게시글_작성자_불일치로_상세_조회_실패() {
+        // given
+        Board findBoard
+                = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", new Date(), new Date());
+
+        when(boardRepository.findById(anyLong())).thenReturn(Optional.of(findBoard));
+
+        // when
+        PrevStudyException exception = assertThrows(PrevStudyException.class,
+                () -> boardService.getBoard(anyLong(), UserDetailsImpl.builder().id(999L).build()));
+
+        // then
+        assertThat("게시글에 대한 접근 권한이 없습니다.").isEqualTo(exception.getMessage());
+        assertThat(HttpStatus.FORBIDDEN).isEqualTo(exception.getHttpStatus());
     }
 
     @Test
