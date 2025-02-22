@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class AuthenticationTest {
 
-    private final String AUTHENTICATED_URI = "/test";
+    private final String AUTHENTICATED_ERROR_URI = "/test/error";
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -35,7 +35,7 @@ public class AuthenticationTest {
     void 토큰_없는_요청() throws Exception {
         ResultActions unAuthRequest = mockMvc.perform(
                 MockMvcRequestBuilders
-                        .get(AUTHENTICATED_URI)
+                        .get(AUTHENTICATED_ERROR_URI)
                         .contentType(MediaType.APPLICATION_JSON)
         );
         unAuthRequest.andExpectAll(
@@ -51,7 +51,7 @@ public class AuthenticationTest {
     void 유효하지_않은_토큰_요청() throws Exception {
         ResultActions unAuthRequest = mockMvc.perform(
                 MockMvcRequestBuilders
-                        .get(AUTHENTICATED_URI)
+                        .get(AUTHENTICATED_ERROR_URI)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer invalid-token")
         );
@@ -72,7 +72,7 @@ public class AuthenticationTest {
                 .willThrow(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
         ResultActions unAuthRequest = mockMvc.perform(
                 MockMvcRequestBuilders
-                        .get(AUTHENTICATED_URI)
+                        .get(AUTHENTICATED_ERROR_URI)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer "+ testToken)
         );
