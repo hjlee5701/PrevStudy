@@ -3,12 +3,12 @@ package com.hanghae.prevstudy.domain.security;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -26,7 +26,7 @@ public class AuthenticationTest {
     private MockMvc mockMvc;
     @Autowired
     private TokenProvider tokenProvider;
-    @Mock
+    @MockitoBean // SpringContext 에서 관리하는 가짜 Bean
     UserDetailsServiceImpl userDetailsService;
 
 
@@ -69,7 +69,7 @@ public class AuthenticationTest {
     void 다른_회원_토큰_요청() throws Exception {
         String testToken = tokenProvider.createToken("0").getAccessToken();
         BDDMockito.given(userDetailsService.loadUserByUsername(anyString()))
-                .willThrow(UsernameNotFoundException.class);
+                .willThrow(new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
         ResultActions unAuthRequest = mockMvc.perform(
                 MockMvcRequestBuilders
                         .get(AUTHENTICATED_URI)
