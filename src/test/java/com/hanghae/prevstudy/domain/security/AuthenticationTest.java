@@ -109,7 +109,24 @@ public class AuthenticationTest {
         );
     }
 
+    @Test
+    @DisplayName("AuthMemberArgumentResolver_익명사용자_예외")
+    void AuthMemberArgumentResolver_익명사용자_예외() throws Exception {
 
+        // given, when
+        ResultActions authRequest = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get("/test/pass")
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        authRequest.andExpectAll(
+                status().isUnauthorized(),
+                jsonPath("$.status").value(401),
+                jsonPath("$.message").value("인증되지 않은 사용자입니다."),
+                jsonPath("$.data").isEmpty()
+        );
+    }
     
 
 

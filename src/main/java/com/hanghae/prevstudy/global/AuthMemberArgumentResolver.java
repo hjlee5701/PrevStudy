@@ -5,6 +5,9 @@ import com.hanghae.prevstudy.domain.security.UserDetailsImpl;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -43,6 +46,19 @@ public class AuthMemberArgumentResolver implements HandlerMethodArgumentResolver
             log.error("클래스 타입 에러입니다.");
             throw new PrevStudyException(MemberErrorCode.INVALID_AUTH_MEMBER_TYPE);
         }
-        return null;
+
+        // 현재 인증된 사용자 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // 인증되지 않은 경우 예외 발생
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken
+        ) {
+            log.error("익명 사용자 에러입니다.");
+            throw new PrevStudyException(MemberErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        return (UserDetailsImpl) authentication.getPrincipal();
     }
 }

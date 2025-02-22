@@ -16,4 +16,9 @@ public class AuthTestController {
     public void error(@AuthMemberInfo SignupRequest userDetails) {
     }
 
+    @GetMapping("/pass")
+    public void error(@AuthMemberInfo UserDetailsImpl userDetails) {
+    }
+
+
 }
