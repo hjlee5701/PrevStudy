@@ -2,7 +2,9 @@ package com.hanghae.prevstudy.domain.security;
 
 import com.hanghae.prevstudy.domain.member.dto.SignupRequest;
 import com.hanghae.prevstudy.global.AuthMemberInfo;
+import com.hanghae.prevstudy.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +20,15 @@ public class AuthTestController {
 
     @GetMapping("/pass")
     public void error(@AuthMemberInfo UserDetailsImpl userDetails) {
+    }
+
+    @GetMapping("/success")
+    public ResponseEntity<ApiResponse<UserDetailsImpl>> success(@AuthMemberInfo UserDetailsImpl userDetails) {
+
+        System.out.println(userDetails.getUsername());
+
+        return ResponseEntity.ok(
+                ApiResponse.success("테스트 성공", userDetails));
     }
 
 

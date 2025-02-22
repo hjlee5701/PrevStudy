@@ -22,6 +22,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AuthenticationTest {
 
     private final String AUTHENTICATED_ERROR_URI = "/test/error";
+    private final String AUTHENTICATED_PASS_URI = "/test/pass";
+    private final String AUTHENTICATED_SUCCESS_URI = "/test/success";
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -116,7 +118,7 @@ public class AuthenticationTest {
         // given, when
         ResultActions authRequest = mockMvc.perform(
                 MockMvcRequestBuilders
-                        .get("/test/pass")
+                        .get(AUTHENTICATED_PASS_URI)
                         .contentType(MediaType.APPLICATION_JSON)
         );
         // then
@@ -125,6 +127,31 @@ public class AuthenticationTest {
                 jsonPath("$.status").value(401),
                 jsonPath("$.message").value("인증되지 않은 사용자입니다."),
                 jsonPath("$.data").isEmpty()
+        );
+    }
+
+    @Test
+    @DisplayName("AuthMemberArgumentResolver_성공")
+    void AuthMemberArgumentResolver_성공() throws Exception {
+
+        // given
+        String testToken = tokenProvider.createToken("1").getAccessToken();
+        BDDMockito.given(userDetailsService.loadUserByUsername(anyString()))
+                .willReturn(UserDetailsImpl.builder().id(1L).build());
+
+        // when
+        ResultActions authRequest = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .get(AUTHENTICATED_SUCCESS_URI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer "+ testToken)
+        );
+
+        // then
+        authRequest.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("테스트 성공")
         );
     }
     
