@@ -4,6 +4,8 @@ import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
 import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
 import com.hanghae.prevstudy.domain.board.service.BoardService;
 import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
+import com.hanghae.prevstudy.domain.security.dto.UserDetailsImpl;
+import com.hanghae.prevstudy.global.annotation.AuthMemberInfo;
 import com.hanghae.prevstudy.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +22,22 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<BoardResponse>> addBoard(@Valid @RequestBody BoardAddRequest boardAddRequest) {
+    public ResponseEntity<ApiResponse<BoardResponse>> addBoard(
+            @Valid @RequestBody BoardAddRequest boardAddRequest,
+            @AuthMemberInfo UserDetailsImpl userDetails
+    ) {
 
         return ResponseEntity.ok(
-                ApiResponse.success("게시글 생성 성공", boardService.add(boardAddRequest, null)));
+                ApiResponse.success("게시글 생성 성공", boardService.add(boardAddRequest, userDetails)));
     }
 
     @GetMapping("/{boardId}")
-    public ResponseEntity<ApiResponse<BoardResponse>> getBoard(@PathVariable("boardId") Long boardId) {
+    public ResponseEntity<ApiResponse<BoardResponse>> getBoard(
+            @PathVariable("boardId") Long boardId,
+            @AuthMemberInfo UserDetailsImpl userDetails
+    ) {
         return ResponseEntity.ok(
-                ApiResponse.success("게시글 상세 조회 성공", boardService.getBoard(boardId, null)));
+                ApiResponse.success("게시글 상세 조회 성공", boardService.getBoard(boardId, userDetails)));
     }
 
 
@@ -42,14 +50,19 @@ public class BoardController {
     @PatchMapping("/{boardId}")
     public ResponseEntity<ApiResponse<BoardResponse>> updateBoard(
             @PathVariable("boardId") Long boardId,
-            @Valid @RequestBody BoardUpdateRequest boardUpdateRequest) {
+            @Valid @RequestBody BoardUpdateRequest boardUpdateRequest,
+            @AuthMemberInfo UserDetailsImpl userDetails
+    ) {
         return ResponseEntity.ok(
-                ApiResponse.success("게시글 수정 성공", boardService.update(boardId, boardUpdateRequest, null)));
+                ApiResponse.success("게시글 수정 성공", boardService.update(boardId, boardUpdateRequest, userDetails)));
     }
 
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<ApiResponse<Void>> deleteBoard(@PathVariable("boardId") Long boardId) {
-        boardService.delete(boardId, null);
+    public ResponseEntity<ApiResponse<Void>> deleteBoard(
+            @PathVariable("boardId") Long boardId,
+            @AuthMemberInfo UserDetailsImpl userDetails
+    ) {
+        boardService.delete(boardId, userDetails);
         return ResponseEntity.ok(
                 ApiResponse.success("게시글 삭제 성공"));
     }
