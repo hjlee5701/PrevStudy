@@ -4,6 +4,8 @@ import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
 import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
 import com.hanghae.prevstudy.domain.board.service.BoardService;
 import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
+import com.hanghae.prevstudy.domain.security.UserDetailsImpl;
+import com.hanghae.prevstudy.global.AuthMemberInfo;
 import com.hanghae.prevstudy.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +22,13 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<BoardResponse>> addBoard(@Valid @RequestBody BoardAddRequest boardAddRequest) {
+    public ResponseEntity<ApiResponse<BoardResponse>> addBoard(
+            @Valid @RequestBody BoardAddRequest boardAddRequest,
+            @AuthMemberInfo UserDetailsImpl userDetails
+    ) {
 
         return ResponseEntity.ok(
-                ApiResponse.success("게시글 생성 성공", boardService.add(boardAddRequest)));
+                ApiResponse.success("게시글 생성 성공", boardService.add(boardAddRequest, null)));
     }
 
     @GetMapping("/{boardId}")

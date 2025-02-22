@@ -4,9 +4,11 @@ import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
 import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
 import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import com.hanghae.prevstudy.domain.board.entity.Board;
-import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
 import com.hanghae.prevstudy.domain.board.exception.BoardErrorCode;
+import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
 import com.hanghae.prevstudy.domain.member.entity.Member;
+import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
+import com.hanghae.prevstudy.domain.security.UserDetailsImpl;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +22,16 @@ import java.util.List;
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
+    private final MemberRepository memberRepository;
 
     @Override
-    public BoardResponse add(BoardAddRequest boardAddRequest) {
+    @Transactional
+    public BoardResponse add(BoardAddRequest boardAddRequest, UserDetailsImpl userDetails) {
+
+        Member member = memberRepository.getReferenceById(userDetails.getId()); // 프록시 객체
         Board board = Board.builder()
                 .title(boardAddRequest.getTitle())
-                .writer(Member.builder().username("tester").build())
+                .writer(member)
                 .content(boardAddRequest.getContent())
                 .password(boardAddRequest.getPassword())
                 .build();
@@ -33,7 +39,7 @@ public class BoardServiceImpl implements BoardService {
         return BoardResponse.builder()
                 .boardId(savedBoard.getId())
                 .title(savedBoard.getTitle())
-                .writer(board.getWriter().getUsername())
+                .writer(userDetails.getUsername()) // member 접근 X
                 .content(savedBoard.getContent())
                 .regAt(savedBoard.getRegAt())
                 .modAt(savedBoard.getModAt())

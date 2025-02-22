@@ -98,7 +98,7 @@ public class BoardControllerTest {
                 .modAt(new Date())
                 .build();
 
-        BDDMockito.given(boardService.add(any(BoardAddRequest.class)))
+        BDDMockito.given(boardService.add(any(BoardAddRequest.class), null))
                 .willReturn(boardResponse);
 
         // when

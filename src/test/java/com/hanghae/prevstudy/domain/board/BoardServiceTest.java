@@ -7,10 +7,13 @@ import com.hanghae.prevstudy.domain.board.entity.Board;
 import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
 import com.hanghae.prevstudy.domain.board.service.BoardServiceImpl;
 import com.hanghae.prevstudy.domain.member.entity.Member;
+import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
+import com.hanghae.prevstudy.domain.security.UserDetailsImpl;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,6 +35,8 @@ public class BoardServiceTest {
 
     @Mock
     private BoardRepository boardRepository;
+    @Mock
+    private MemberRepository memberRepository;
 
     @InjectMocks
     private BoardServiceImpl boardService;
@@ -40,14 +45,22 @@ public class BoardServiceTest {
     @DisplayName("게시글_생성")
     void 게시글_생성() {
         // given
-        Date now = new Date();
+        UserDetailsImpl userDetails = UserDetailsImpl.builder()
+                .id(1L)
+                .username("tester")
+                .password("비밀번호")
+                .build();
+        Member referencedMember = Member.builder().id(userDetails.getId()).username(userDetails.getUsername()).build();
+
         Board newBoard
-                = new Board(1L, "제목", Member.builder().username("tester").build(), "내용", "비밀번호", now, now);
-        when(boardRepository.save(any(Board.class))).thenReturn(newBoard);
+                = new Board(1L, "제목", referencedMember, "내용", "비밀번호", new Date(), new Date());
+
+        BDDMockito.given(memberRepository.getReferenceById(anyLong())).willReturn(referencedMember);
+        BDDMockito.given(boardRepository.save(any(Board.class))).willReturn(newBoard);
 
         // when
         BoardAddRequest requestBoardDto = new BoardAddRequest("제목", "작성자", "내용", "비밀번호");
-        final BoardResponse boardResponseDto = boardService.add(requestBoardDto);
+        final BoardResponse boardResponseDto = boardService.add(requestBoardDto, userDetails);
 
         // then
         assertThat(boardResponseDto).isNotNull();
