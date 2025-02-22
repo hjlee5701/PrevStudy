@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -99,6 +100,26 @@ public class MemberControllerTest {
 
         // then
         signupResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("회원가입 성공"),
+                jsonPath("$.data").isEmpty()
+        );
+    }
+
+    @Test
+    @DisplayName("isAdmin_null_인_회원가입_요청_성공")
+    void isAdmin_값_없는_일반_회원의_가입_요청_성공() throws Exception {
+        SignupRequest request = new SignupRequest(SAMPLE_VALID_USERNAME, SAMPLE_VALID_PASSWORD, null);
+        ResultActions singUpResult = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(REQUEST_URL)
+                        .content(createRequestToJson(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        assertThat(request.getIsAdmin()).isFalse();
+        singUpResult.andExpectAll(
                 status().isOk(),
                 jsonPath("$.status").value(200),
                 jsonPath("$.message").value("회원가입 성공"),
