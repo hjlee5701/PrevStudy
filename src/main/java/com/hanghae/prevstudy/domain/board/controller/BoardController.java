@@ -22,10 +22,7 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<BoardResponse>> addBoard(
-            @Valid @RequestBody BoardAddRequest boardAddRequest,
-            @AuthMemberInfo UserDetailsImpl userDetails
-    ) {
+    public ResponseEntity<ApiResponse<BoardResponse>> addBoard(@Valid @RequestBody BoardAddRequest boardAddRequest) {
 
         return ResponseEntity.ok(
                 ApiResponse.success("게시글 생성 성공", boardService.add(boardAddRequest, null)));
