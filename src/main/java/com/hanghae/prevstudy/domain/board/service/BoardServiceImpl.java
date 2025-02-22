@@ -90,9 +90,12 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardResponse update(Long boardId, BoardUpdateRequest boardUpdateRequest) {
+    public BoardResponse update(Long boardId, BoardUpdateRequest boardUpdateRequest, UserDetailsImpl userDetails) {
         Board findBoard = boardRepository.findById(boardId)
                 .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
+
+        Member writer = findBoard.getWriter();
+
 
         String findBoardPassword = findBoard.getPassword();
         if (!isPasswordMatch(findBoardPassword, boardUpdateRequest.getPassword())) {

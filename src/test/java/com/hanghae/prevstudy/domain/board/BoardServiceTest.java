@@ -171,7 +171,7 @@ public class BoardServiceTest {
 
         // When
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.update(1L, boardUpdateRequest));
+                () -> boardService.update(1L, boardUpdateRequest, UserDetailsImpl.builder().build()));
 
         // then
         assertThat("비밀번호가 일치하지 않습니다.").isEqualTo(exception.getMessage());
@@ -191,7 +191,7 @@ public class BoardServiceTest {
         when(boardRepository.findById(1L)).thenReturn(Optional.of(beforeUpdateBoard));
 
         // when
-        BoardResponse boardResponse = boardService.update(1L, boardUpdateRequest);
+        BoardResponse boardResponse = boardService.update(1L, boardUpdateRequest, UserDetailsImpl.builder().build());
 
         // then
         assertAll(

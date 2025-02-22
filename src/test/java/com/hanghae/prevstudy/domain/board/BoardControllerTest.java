@@ -206,7 +206,7 @@ public class BoardControllerTest {
     @DisplayName("게시글_수정_실패 - 비밀번호 불일치")
     void 게시글_수정_실패() throws Exception {
         // given
-        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class)))
+        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class), null))
                 .willThrow(new PrevStudyException(BoardErrorCode.INVALID_PASSWORD));
 
         // when
@@ -237,7 +237,7 @@ public class BoardControllerTest {
                 .modAt(new Date())
                 .build();
 
-        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class)))
+        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class), null))
                 .willReturn(boardResponse);
 
         // when

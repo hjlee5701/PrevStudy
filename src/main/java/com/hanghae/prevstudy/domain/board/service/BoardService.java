@@ -14,7 +14,7 @@ public interface BoardService {
 
     List<BoardResponse> getBoards();
 
-    BoardResponse update(Long boardId, BoardUpdateRequest boardUpdateRequest);
+    BoardResponse update(Long boardId, BoardUpdateRequest boardUpdateRequest, UserDetailsImpl userDetails);
 
     void delete(Long boardId);
 }

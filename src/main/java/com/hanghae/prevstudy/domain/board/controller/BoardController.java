@@ -49,7 +49,7 @@ public class BoardController {
             @PathVariable("boardId") Long boardId,
             @Valid @RequestBody BoardUpdateRequest boardUpdateRequest) {
         return ResponseEntity.ok(
-                ApiResponse.success("게시글 수정 성공", boardService.update(boardId, boardUpdateRequest)));
+                ApiResponse.success("게시글 수정 성공", boardService.update(boardId, boardUpdateRequest, null)));
     }
 
     @DeleteMapping("/{boardId}")
