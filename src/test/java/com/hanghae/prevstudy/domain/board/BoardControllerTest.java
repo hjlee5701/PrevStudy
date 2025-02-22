@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -98,7 +99,7 @@ public class BoardControllerTest {
                 .modAt(new Date())
                 .build();
 
-        BDDMockito.given(boardService.add(any(BoardAddRequest.class), null))
+        BDDMockito.given(boardService.add(any(BoardAddRequest.class), Mockito.any()))
                 .willReturn(boardResponse);
 
         // when
@@ -149,7 +150,7 @@ public class BoardControllerTest {
         String boardId = "1";
 
         doThrow(new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND))
-                .when(boardService).getBoard(any(Long.class), null);
+                .when(boardService).getBoard(anyLong(), Mockito.any());
 
         // when
         ResultActions getBoardResult = mockMvc.perform(
@@ -206,7 +207,7 @@ public class BoardControllerTest {
     @DisplayName("게시글_수정_실패 - 비밀번호 불일치")
     void 게시글_수정_실패() throws Exception {
         // given
-        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class), null))
+        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class), Mockito.any()))
                 .willThrow(new PrevStudyException(BoardErrorCode.INVALID_PASSWORD));
 
         // when
@@ -237,7 +238,7 @@ public class BoardControllerTest {
                 .modAt(new Date())
                 .build();
 
-        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class), null))
+        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class), Mockito.any()))
                 .willReturn(boardResponse);
 
         // when
@@ -266,6 +267,10 @@ public class BoardControllerTest {
     void 게시글_삭제() throws Exception {
         // given
         Long boardId = 1L;
+//        when(boardService.delete(any(Long.class), Mockito.any())).
+//        doNothing(Void).when(boardService.delete(any(Long.class), Mockito.any()));
+        
+//        BDDMockito.given(boardService.delete(any(Long.class), Mockito.any()));
 
         // when
         ResultActions deleteResult = mockMvc.perform(
