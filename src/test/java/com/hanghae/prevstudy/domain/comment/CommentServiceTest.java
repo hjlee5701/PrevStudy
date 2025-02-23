@@ -2,7 +2,7 @@ package com.hanghae.prevstudy.domain.comment;
 
 import com.hanghae.prevstudy.domain.board.entity.Board;
 import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
-import com.hanghae.prevstudy.domain.comment.dto.CommentAddRequest;
+import com.hanghae.prevstudy.domain.comment.dto.CommentRequest;
 import com.hanghae.prevstudy.domain.comment.dto.CommentResponse;
 import com.hanghae.prevstudy.domain.comment.entity.Comment;
 import com.hanghae.prevstudy.domain.comment.repositoroy.CommentRepository;
@@ -55,7 +55,7 @@ public class CommentServiceTest {
     @DisplayName("댓글_생성_성공")
     void 댓글_생성_성공() {
         // given
-        CommentAddRequest commentAddRequest = new CommentAddRequest("내용");
+        CommentRequest commentAddRequest = new CommentRequest("내용");
 
         Member referMember = Member.builder().id(1L).build();
         Board referBoard = Board.builder().id(1L).title("제목").build();
@@ -86,7 +86,7 @@ public class CommentServiceTest {
     @DisplayName("댓글_생성_실패 - 존재하지 않은 게시글")
     void 댓글_생성_실패() {
         // given
-        CommentAddRequest commentAddRequest = new CommentAddRequest("내용");
+        CommentRequest commentAddRequest = new CommentRequest("내용");
 
         BDDMockito.given(boardRepository.findById(anyLong()))
                 .willReturn(Optional.empty());

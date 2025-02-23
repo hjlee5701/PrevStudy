@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class CommentAddRequest {
+public class CommentRequest {
     private final String content;
 }

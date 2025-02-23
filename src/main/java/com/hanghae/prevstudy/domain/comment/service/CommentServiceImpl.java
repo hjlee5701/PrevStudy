@@ -2,7 +2,7 @@ package com.hanghae.prevstudy.domain.comment.service;
 
 import com.hanghae.prevstudy.domain.board.entity.Board;
 import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
-import com.hanghae.prevstudy.domain.comment.dto.CommentAddRequest;
+import com.hanghae.prevstudy.domain.comment.dto.CommentRequest;
 import com.hanghae.prevstudy.domain.comment.dto.CommentResponse;
 import com.hanghae.prevstudy.domain.comment.entity.Comment;
 import com.hanghae.prevstudy.domain.comment.repositoroy.CommentRepository;
@@ -28,7 +28,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentResponse add(Long boardId, CommentAddRequest commentAddRequest, AuthMemberDto authMemberDto) {
+    public CommentResponse add(Long boardId, CommentRequest commentAddRequest, AuthMemberDto authMemberDto) {
 
         Optional<Board> board = boardRepository.findById(boardId);
         if (board.isEmpty()) {
