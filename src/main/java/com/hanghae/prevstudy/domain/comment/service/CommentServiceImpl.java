@@ -75,6 +75,8 @@ public class CommentServiceImpl implements CommentService {
         if (!isWriterMatch(authMemberDto.getId(), comment.getWriter().getId())) {
             throw new PrevStudyException(CommentErrorCode.FORBIDDEN_ACCESS);
         }
+
+        commentRepository.deleteById(commentId);
     }
 
     public boolean isWriterMatch(Long loginMemberId, Long writerId) {

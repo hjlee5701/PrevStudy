@@ -25,6 +25,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class CommentServiceTest {
@@ -196,5 +198,20 @@ public class CommentServiceTest {
                 () -> assertEquals("댓글에 대한 접근 권한이 없습니다.", exception.getMessage()),
                 () -> assertEquals(HttpStatus.FORBIDDEN, exception.getHttpStatus())
         );
+    }
+
+    @Test
+    @DisplayName("댓글_삭제_성공")
+    void 댓글_삭제_성공() {
+        // given
+        Member referMember = Member.builder().id(1L).build();
+        Board referBoard = Board.builder().id(1L).title("제목").build();
+
+        BDDMockito.given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.of(newComment(referMember, referBoard)));
+
+        // when, then
+        assertDoesNotThrow(() -> commentService.delete(anyLong(), createAuthMemberDto()));
+        verify(commentRepository, times(1)).deleteById(anyLong());
     }
 }
