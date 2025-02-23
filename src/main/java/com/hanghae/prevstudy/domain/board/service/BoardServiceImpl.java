@@ -4,11 +4,11 @@ import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
 import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
 import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import com.hanghae.prevstudy.domain.board.entity.Board;
-import com.hanghae.prevstudy.global.exception.errorCode.BoardErrorCode;
 import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
 import com.hanghae.prevstudy.domain.member.entity.Member;
 import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
+import com.hanghae.prevstudy.global.exception.errorCode.BoardErrorCode;
 import com.hanghae.prevstudy.global.resolver.AuthMemberDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +56,7 @@ public class BoardServiceImpl implements BoardService {
         Long loginMemberId = authMemberDto.getId();
         Member writer = findBoard.getWriter();
 
-        if (!isWriterMatch(loginMemberId, writer.getId())) {
+        if (!authMemberDto.isAdmin() && !isWriterMatch(loginMemberId, writer.getId())) {
             throw new PrevStudyException(BoardErrorCode.FORBIDDEN_ACCESS);
         }
 
@@ -96,8 +96,8 @@ public class BoardServiceImpl implements BoardService {
 
         Member writer = findBoard.getWriter();
 
-        // 작성자 불일치
-        if (!isWriterMatch(authMemberDto.getId(), writer.getId())) {
+        // 일반 유저 & 작성자 불일치
+        if (!authMemberDto.isAdmin() && !isWriterMatch(authMemberDto.getId(), writer.getId())) {
             throw new PrevStudyException(BoardErrorCode.FORBIDDEN_ACCESS);
         }
 
@@ -134,7 +134,8 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
 
-        if (!isWriterMatch(authMemberDto.getId(), board.getWriter().getId())) {
+        // 일반 유저 & 작성자 불일치
+        if (!authMemberDto.isAdmin() && !isWriterMatch(authMemberDto.getId(), board.getWriter().getId())) {
             throw new PrevStudyException(BoardErrorCode.FORBIDDEN_ACCESS);
         }
         boardRepository.delete(board);
