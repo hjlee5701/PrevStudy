@@ -9,9 +9,11 @@ import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
 import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
 import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import com.hanghae.prevstudy.domain.board.service.BoardServiceImpl;
+import com.hanghae.prevstudy.domain.security.dto.UserDetailsImpl;
 import com.hanghae.prevstudy.global.exception.errorCode.BoardErrorCode;
 import com.hanghae.prevstudy.global.exception.GlobalExceptionHandler;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
+import com.hanghae.prevstudy.global.resolver.AuthMemberArgumentResolver;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,11 +25,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +52,22 @@ public class BoardControllerTest {
     private BoardServiceImpl boardService;
     @InjectMocks
     private BoardController boardController;
+
+    @BeforeEach
+    public void setupSecurityContext() {
+        UserDetailsImpl userDetails = UserDetailsImpl.builder()
+                .id(1L)
+                .username("tester")
+                .authorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")))
+                .build();
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
 
     private MockMvc mockMvc;
 
@@ -65,6 +88,7 @@ public class BoardControllerTest {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(boardController)
                 .setControllerAdvice(new GlobalExceptionHandler())
+                .setCustomArgumentResolvers(new AuthMemberArgumentResolver())
                 .build();
     }
 
@@ -267,10 +291,6 @@ public class BoardControllerTest {
     void 게시글_삭제() throws Exception {
         // given
         Long boardId = 1L;
-//        when(boardService.delete(any(Long.class), Mockito.any())).
-//        doNothing(Void).when(boardService.delete(any(Long.class), Mockito.any()));
-        
-//        BDDMockito.given(boardService.delete(any(Long.class), Mockito.any()));
 
         // when
         ResultActions deleteResult = mockMvc.perform(

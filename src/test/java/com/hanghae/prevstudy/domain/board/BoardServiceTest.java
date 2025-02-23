@@ -8,8 +8,8 @@ import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
 import com.hanghae.prevstudy.domain.board.service.BoardServiceImpl;
 import com.hanghae.prevstudy.domain.member.entity.Member;
 import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
-import com.hanghae.prevstudy.domain.security.dto.UserDetailsImpl;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
+import com.hanghae.prevstudy.global.resolver.AuthMemberDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,12 +43,11 @@ public class BoardServiceTest {
     @DisplayName("게시글_생성")
     void 게시글_생성() {
         // given
-        UserDetailsImpl userDetails = UserDetailsImpl.builder()
+        AuthMemberDto authMemberDto = AuthMemberDto.builder()
                 .id(1L)
                 .username("tester")
-                .password("비밀번호")
                 .build();
-        Member referencedMember = Member.builder().id(userDetails.getId()).username(userDetails.getUsername()).build();
+        Member referencedMember = Member.builder().id(authMemberDto.getId()).username(authMemberDto.getUsername()).build();
 
         Board newBoard
                 = new Board(1L, "제목", referencedMember, "내용", "비밀번호", new Date(), new Date());
@@ -58,7 +57,7 @@ public class BoardServiceTest {
 
         // when
         BoardAddRequest requestBoardDto = new BoardAddRequest("제목", "작성자", "내용", "비밀번호");
-        final BoardResponse boardResponseDto = boardService.add(requestBoardDto, userDetails);
+        final BoardResponse boardResponseDto = boardService.add(requestBoardDto, authMemberDto);
 
         // then
         assertThat(boardResponseDto).isNotNull();
@@ -75,7 +74,7 @@ public class BoardServiceTest {
 
         // when
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.getBoard(999L, UserDetailsImpl.builder().id(1L).build()));
+                () -> boardService.getBoard(999L, AuthMemberDto.builder().id(1L).build()));
 
         // then
         assertThat("게시글이 존재하지 않습니다.").isEqualTo(exception.getMessage());
@@ -93,7 +92,7 @@ public class BoardServiceTest {
 
         // when
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.getBoard(anyLong(), UserDetailsImpl.builder().id(999L).build()));
+                () -> boardService.getBoard(anyLong(), AuthMemberDto.builder().id(999L).build()));
 
         // then
         assertThat("게시글에 대한 접근 권한이 없습니다.").isEqualTo(exception.getMessage());
@@ -112,7 +111,7 @@ public class BoardServiceTest {
         when(boardRepository.findById(1L)).thenReturn(Optional.of(savedBoard));
 
         // when
-        BoardResponse findBoardDto = boardService.getBoard(1L, UserDetailsImpl.builder().id(1L).build());
+        BoardResponse findBoardDto = boardService.getBoard(1L, AuthMemberDto.builder().id(1L).build());
 
         // then
         assertThat(findBoardDto)
@@ -169,7 +168,7 @@ public class BoardServiceTest {
 
         // when
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.update(anyLong(), boardUpdateRequest, UserDetailsImpl.builder().id(999L).build()));
+                () -> boardService.update(anyLong(), boardUpdateRequest, AuthMemberDto.builder().id(999L).build()));
 
         // then
         assertThat("게시글에 대한 접근 권한이 없습니다.").isEqualTo(exception.getMessage());
@@ -189,7 +188,7 @@ public class BoardServiceTest {
 
         // when
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.update(1L, boardUpdateRequest, UserDetailsImpl.builder().id(1L).build()));
+                () -> boardService.update(1L, boardUpdateRequest, AuthMemberDto.builder().id(1L).build()));
 
         // then
         assertThat("비밀번호가 일치하지 않습니다.").isEqualTo(exception.getMessage());
@@ -209,7 +208,7 @@ public class BoardServiceTest {
         when(boardRepository.findById(1L)).thenReturn(Optional.of(beforeUpdateBoard));
 
         // when
-        BoardResponse boardResponse = boardService.update(1L, boardUpdateRequest, UserDetailsImpl.builder().id(1L).build());
+        BoardResponse boardResponse = boardService.update(1L, boardUpdateRequest, AuthMemberDto.builder().id(1L).build());
 
         // then
         assertAll(
@@ -250,7 +249,7 @@ public class BoardServiceTest {
 
         // when
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.delete(anyLong(), UserDetailsImpl.builder().id(999L).build()));
+                () -> boardService.delete(anyLong(), AuthMemberDto.builder().id(999L).build()));
 
         // then
         assertThat("게시글에 대한 접근 권한이 없습니다.").isEqualTo(exception.getMessage());
@@ -267,7 +266,7 @@ public class BoardServiceTest {
         doReturn(Optional.of(board)).when(boardRepository).findById(any(Long.class));
 
         // when
-        boardService.delete(deleteBoard, UserDetailsImpl.builder().id(1L).build());
+        boardService.delete(deleteBoard, AuthMemberDto.builder().id(1L).build());
 
         // then
         verify(boardRepository, times(1)).delete(board);

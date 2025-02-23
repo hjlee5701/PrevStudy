@@ -43,7 +43,7 @@ public class AuthMemberArgumentResolver implements HandlerMethodArgumentResolver
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
         // 클래스 타입 에러
-        if (!parameter.getParameterType().equals(UserDetailsImpl.class)) {
+        if (!parameter.getParameterType().equals(AuthMemberDto.class)) {
             log.error("클래스 타입 에러입니다.");
             throw new PrevStudyException(MemberErrorCode.INVALID_AUTH_MEMBER_TYPE);
         }
@@ -60,6 +60,6 @@ public class AuthMemberArgumentResolver implements HandlerMethodArgumentResolver
             throw new PrevStudyException(MemberErrorCode.UNAUTHORIZED_ACCESS);
         }
 
-        return (UserDetailsImpl) authentication.getPrincipal();
+        return AuthMemberDto.from((UserDetailsImpl) authentication.getPrincipal());
     }
 }
