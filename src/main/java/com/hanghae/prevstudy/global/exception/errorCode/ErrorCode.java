@@ -1,4 +1,4 @@
-package com.hanghae.prevstudy.global.exception;
+package com.hanghae.prevstudy.global.exception.errorCode;
 
 import org.springframework.http.HttpStatus;
 

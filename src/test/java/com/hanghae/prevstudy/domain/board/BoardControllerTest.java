@@ -9,9 +9,11 @@ import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
 import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
 import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import com.hanghae.prevstudy.domain.board.service.BoardServiceImpl;
-import com.hanghae.prevstudy.domain.board.exception.BoardErrorCode;
+import com.hanghae.prevstudy.domain.security.dto.UserDetailsImpl;
+import com.hanghae.prevstudy.global.exception.errorCode.BoardErrorCode;
 import com.hanghae.prevstudy.global.exception.GlobalExceptionHandler;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
+import com.hanghae.prevstudy.global.resolver.AuthMemberArgumentResolver;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,13 +22,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -44,6 +52,22 @@ public class BoardControllerTest {
     private BoardServiceImpl boardService;
     @InjectMocks
     private BoardController boardController;
+
+    @BeforeEach
+    public void setupSecurityContext() {
+        UserDetailsImpl userDetails = UserDetailsImpl.builder()
+                .id(1L)
+                .username("tester")
+                .authorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")))
+                .build();
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
 
     private MockMvc mockMvc;
 
@@ -64,6 +88,7 @@ public class BoardControllerTest {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(boardController)
                 .setControllerAdvice(new GlobalExceptionHandler())
+                .setCustomArgumentResolvers(new AuthMemberArgumentResolver())
                 .build();
     }
 
@@ -98,7 +123,7 @@ public class BoardControllerTest {
                 .modAt(new Date())
                 .build();
 
-        BDDMockito.given(boardService.add(any(BoardAddRequest.class)))
+        BDDMockito.given(boardService.add(any(BoardAddRequest.class), Mockito.any()))
                 .willReturn(boardResponse);
 
         // when
@@ -149,7 +174,7 @@ public class BoardControllerTest {
         String boardId = "1";
 
         doThrow(new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND))
-                .when(boardService).getBoard(any(Long.class));
+                .when(boardService).getBoard(anyLong(), Mockito.any());
 
         // when
         ResultActions getBoardResult = mockMvc.perform(
@@ -206,7 +231,7 @@ public class BoardControllerTest {
     @DisplayName("게시글_수정_실패 - 비밀번호 불일치")
     void 게시글_수정_실패() throws Exception {
         // given
-        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class)))
+        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class), Mockito.any()))
                 .willThrow(new PrevStudyException(BoardErrorCode.INVALID_PASSWORD));
 
         // when
@@ -237,7 +262,7 @@ public class BoardControllerTest {
                 .modAt(new Date())
                 .build();
 
-        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class)))
+        BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class), Mockito.any()))
                 .willReturn(boardResponse);
 
         // when

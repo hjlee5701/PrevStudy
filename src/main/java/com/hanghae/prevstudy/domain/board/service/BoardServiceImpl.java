@@ -4,10 +4,12 @@ import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
 import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
 import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import com.hanghae.prevstudy.domain.board.entity.Board;
+import com.hanghae.prevstudy.global.exception.errorCode.BoardErrorCode;
 import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
-import com.hanghae.prevstudy.domain.board.exception.BoardErrorCode;
 import com.hanghae.prevstudy.domain.member.entity.Member;
+import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
+import com.hanghae.prevstudy.global.resolver.AuthMemberDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,12 +22,16 @@ import java.util.List;
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
+    private final MemberRepository memberRepository;
 
     @Override
-    public BoardResponse add(BoardAddRequest boardAddRequest) {
+    @Transactional
+    public BoardResponse add(BoardAddRequest boardAddRequest, AuthMemberDto authMemberDto) {
+
+        Member member = memberRepository.getReferenceById(authMemberDto.getId()); // 프록시 객체
         Board board = Board.builder()
                 .title(boardAddRequest.getTitle())
-                .writer(Member.builder().username("tester").build())
+                .writer(member)
                 .content(boardAddRequest.getContent())
                 .password(boardAddRequest.getPassword())
                 .build();
@@ -33,7 +39,7 @@ public class BoardServiceImpl implements BoardService {
         return BoardResponse.builder()
                 .boardId(savedBoard.getId())
                 .title(savedBoard.getTitle())
-                .writer(board.getWriter().getUsername())
+                .writer(authMemberDto.getUsername()) // member 접근 X
                 .content(savedBoard.getContent())
                 .regAt(savedBoard.getRegAt())
                 .modAt(savedBoard.getModAt())
@@ -41,14 +47,23 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public BoardResponse getBoard(Long boardId) {
+    @Transactional
+    public BoardResponse getBoard(Long boardId, AuthMemberDto authMemberDto) {
+
         Board findBoard = boardRepository.findById(boardId)
                 .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
+
+        Long loginMemberId = authMemberDto.getId();
+        Member writer = findBoard.getWriter();
+
+        if (!isWriterMatch(loginMemberId, writer.getId())) {
+            throw new PrevStudyException(BoardErrorCode.FORBIDDEN_ACCESS);
+        }
 
         return BoardResponse.builder()
                 .boardId(findBoard.getId())
                 .title(findBoard.getTitle())
-                .writer(findBoard.getWriter().getUsername())
+                .writer(writer.getUsername())
                 .content(findBoard.getContent())
                 .regAt(findBoard.getRegAt())
                 .modAt(findBoard.getModAt())
@@ -63,7 +78,7 @@ public class BoardServiceImpl implements BoardService {
             BoardResponse response = BoardResponse.builder()
                     .boardId(board.getId())
                     .title(board.getTitle())
-                    .writer("작성자")
+                    .writer(board.getWriter().getUsername())
                     .content(board.getContent())
                     .regAt(board.getRegAt())
                     .modAt(board.getModAt())
@@ -75,10 +90,18 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardResponse update(Long boardId, BoardUpdateRequest boardUpdateRequest) {
+    public BoardResponse update(Long boardId, BoardUpdateRequest boardUpdateRequest, AuthMemberDto authMemberDto) {
         Board findBoard = boardRepository.findById(boardId)
                 .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
 
+        Member writer = findBoard.getWriter();
+
+        // 작성자 불일치
+        if (!isWriterMatch(authMemberDto.getId(), writer.getId())) {
+            throw new PrevStudyException(BoardErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        // 비밀번호 불일치
         String findBoardPassword = findBoard.getPassword();
         if (!isPasswordMatch(findBoardPassword, boardUpdateRequest.getPassword())) {
             throw new PrevStudyException(BoardErrorCode.INVALID_PASSWORD);
@@ -90,7 +113,7 @@ public class BoardServiceImpl implements BoardService {
         return BoardResponse.builder()
                 .boardId(findBoard.getId())
                 .title(findBoard.getTitle())
-                .writer("작성자")
+                .writer(writer.getUsername())
                 .content(findBoard.getContent())
                 .regAt(findBoard.getRegAt())
                 .modAt(findBoard.getModAt())
@@ -101,11 +124,19 @@ public class BoardServiceImpl implements BoardService {
         return findBoardPassword.equals(updateRequestPassword);
     }
 
+    public boolean isWriterMatch(Long loginMemberId, Long writerId) {
+        return loginMemberId.equals(writerId);
+    }
+
     @Override
-    public void delete(Long boardId) {
+    @Transactional
+    public void delete(Long boardId, AuthMemberDto authMemberDto) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
 
+        if (!isWriterMatch(authMemberDto.getId(), board.getWriter().getId())) {
+            throw new PrevStudyException(BoardErrorCode.FORBIDDEN_ACCESS);
+        }
         boardRepository.delete(board);
     }
 }

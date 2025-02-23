@@ -7,4 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class LoginResponse {
     private Long memberId;
+    private boolean isAdmin;
 }
