@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 public class CommentServiceTest {
 
+    private final Long ANOTHER_MEMBER_ID = 999L;
     @Mock
     private CommentRepository commentRepository;
     @Mock
@@ -59,16 +60,16 @@ public class CommentServiceTest {
         // given
         CommentRequest commentAddRequest = new CommentRequest("내용");
 
-        Member referMember = Member.builder().id(1L).build();
-        Board referBoard = Board.builder().id(1L).title("제목").build();
+        Member commentWriter = Member.builder().id(1L).build();
+        Board board = Board.builder().id(1L).title("제목").build();
 
         BDDMockito.given(memberRepository.getReferenceById(anyLong()))
-                .willReturn(referMember);
+                .willReturn(commentWriter);
         BDDMockito.given(boardRepository.findById(anyLong()))
-                .willReturn(Optional.of(referBoard));
+                .willReturn(Optional.of(board));
 
         BDDMockito.given(commentRepository.save(any(Comment.class)))
-                .willReturn(newComment(referMember, referBoard));
+                .willReturn(newComment(commentWriter, board));
 
 
         // when
@@ -134,11 +135,11 @@ public class CommentServiceTest {
         // given
         CommentRequest commentUpdateRequest = new CommentRequest("수정 내용");
 
-        Member referMember = Member.builder().id(999L).build();
-        Board referBoard = Board.builder().id(1L).title("제목").build();
+        Member commentWriter = Member.builder().id(ANOTHER_MEMBER_ID).build();
+        Board board = Board.builder().id(1L).title("제목").build();
 
         BDDMockito.given(commentRepository.findById(anyLong()))
-                .willReturn(Optional.of(newComment(referMember, referBoard)));
+                .willReturn(Optional.of(newComment(commentWriter, board)));
 
         // when
         PrevStudyException exception = assertThrows(
@@ -160,9 +161,9 @@ public class CommentServiceTest {
         // given
         CommentRequest commentUpdateRequest = new CommentRequest("수정 내용");
 
-        Member referMember = Member.builder().id(1L).build();
-        Board referBoard = Board.builder().id(1L).title("제목").build();
-        Comment savedComment = newComment(referMember, referBoard);
+        Member commentWriter = Member.builder().id(1L).build();
+        Board board = Board.builder().id(1L).title("제목").build();
+        Comment savedComment = newComment(commentWriter, board);
 
         String beforeUpdateContent = savedComment.getContent();
 
@@ -206,11 +207,11 @@ public class CommentServiceTest {
     @DisplayName("댓글_삭제_실패 - 작성자 불일치")
     void 작성자_불일치_댓글_삭제_실패() {
         // given
-        Member referMember = Member.builder().id(999L).build();
-        Board referBoard = Board.builder().id(1L).title("제목").build();
+        Member commentWriter = Member.builder().id(ANOTHER_MEMBER_ID).build();
+        Board board = Board.builder().id(1L).title("제목").build();
 
         BDDMockito.given(commentRepository.findById(anyLong()))
-                .willReturn(Optional.of(newComment(referMember, referBoard)));
+                .willReturn(Optional.of(newComment(commentWriter, board)));
 
         // when
         PrevStudyException exception = assertThrows(
@@ -229,11 +230,11 @@ public class CommentServiceTest {
     @DisplayName("댓글_삭제_성공")
     void 댓글_삭제_성공() {
         // given
-        Member referMember = Member.builder().id(1L).build();
-        Board referBoard = Board.builder().id(1L).title("제목").build();
+        Member commentWriter = Member.builder().id(1L).build();
+        Board board = Board.builder().id(1L).title("제목").build();
 
         BDDMockito.given(commentRepository.findById(anyLong()))
-                .willReturn(Optional.of(newComment(referMember, referBoard)));
+                .willReturn(Optional.of(newComment(commentWriter, board)));
 
         // when, then
         assertDoesNotThrow(() -> commentService.delete(anyLong(), createAuthMemberDto()));
@@ -251,9 +252,9 @@ public class CommentServiceTest {
         // given
         CommentRequest commentUpdateRequest = new CommentRequest("수정 내용");
 
-        Member referMember = Member.builder().id(999L).build();
-        Board referBoard = Board.builder().id(1L).title("제목").build();
-        Comment savedComment = newComment(referMember, referBoard);
+        Member commentWriter = Member.builder().id(ANOTHER_MEMBER_ID).build();
+        Board board = Board.builder().id(1L).title("제목").build();
+        Comment savedComment = newComment(commentWriter, board);
 
         String beforeUpdateContent = savedComment.getContent();
 
@@ -277,11 +278,11 @@ public class CommentServiceTest {
     @DisplayName("관리자의_댓글_삭제_성공")
     void 관리자의_댓글_삭제_성공() {
         // given
-        Member referMember = Member.builder().id(999L).build();
-        Board referBoard = Board.builder().id(1L).title("제목").build();
+        Member commentWriter = Member.builder().id(ANOTHER_MEMBER_ID).build();
+        Board board = Board.builder().id(1L).title("제목").build();
 
         BDDMockito.given(commentRepository.findById(anyLong()))
-                .willReturn(Optional.of(newComment(referMember, referBoard)));
+                .willReturn(Optional.of(newComment(commentWriter, board)));
 
         // when, then
         assertDoesNotThrow(() -> commentService.delete(anyLong(), createAuthAdminDto()));
