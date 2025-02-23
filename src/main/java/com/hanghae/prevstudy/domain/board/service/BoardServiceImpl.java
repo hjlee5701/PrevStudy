@@ -96,8 +96,8 @@ public class BoardServiceImpl implements BoardService {
 
         Member writer = findBoard.getWriter();
 
-        // 작성자 불일치
-        if (!isWriterMatch(authMemberDto.getId(), writer.getId())) {
+        // 일반 유저 & 작성자 불일치
+        if (!authMemberDto.isAdmin() && !isWriterMatch(authMemberDto.getId(), writer.getId())) {
             throw new PrevStudyException(BoardErrorCode.FORBIDDEN_ACCESS);
         }
 
