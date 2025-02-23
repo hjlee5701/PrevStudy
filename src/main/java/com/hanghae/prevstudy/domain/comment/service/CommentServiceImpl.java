@@ -56,9 +56,10 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new PrevStudyException(CommentErrorCode.COMMENT_NOT_FOUND));
 
+        Member writer = comment.getWriter();
 
-        // 작성자 불일치
-        if (!isWriterMatch(authMemberDto.getId(), comment.getWriter().getId())) {
+        // 일반 유저 & 작성자 불일치
+        if (!authMemberDto.isAdmin() && !isWriterMatch(authMemberDto.getId(), writer.getId())) {
             throw new PrevStudyException(CommentErrorCode.FORBIDDEN_ACCESS);
         }
 

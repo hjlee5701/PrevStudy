@@ -239,4 +239,37 @@ public class CommentServiceTest {
         assertDoesNotThrow(() -> commentService.delete(anyLong(), createAuthMemberDto()));
         verify(commentRepository, times(1)).deleteById(anyLong());
     }
+
+    // 관리자
+    private AuthMemberDto createAuthAdminDto() {
+        return AuthMemberDto.builder().id(777L).username("tester").isAdmin(true).build();
+    }
+
+    @Test
+    @DisplayName("관리자의_댓글_수정_성공")
+    void 관리자의_댓글_수정_성공() {
+        // given
+        CommentRequest commentUpdateRequest = new CommentRequest("수정 내용");
+
+        Member referMember = Member.builder().id(999L).build();
+        Board referBoard = Board.builder().id(1L).title("제목").build();
+        Comment savedComment = newComment(referMember, referBoard);
+
+        String beforeUpdateContent = savedComment.getContent();
+
+        BDDMockito.given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.of(savedComment));
+
+        // when
+        CommentResponse commentResponse
+                = commentService.update(anyLong(), commentUpdateRequest, createAuthAdminDto());
+
+        // then
+        assertAll(
+                () -> assertNotNull(commentResponse.getCommentId()),
+                () -> assertNotNull(commentResponse.getWriter()),
+                () -> assertNotNull(commentResponse.getContent()),
+                () -> assertNotEquals(beforeUpdateContent, commentResponse.getContent())
+        );
+    }
 }
