@@ -272,4 +272,77 @@ public class BoardServiceTest {
         verify(boardRepository, times(1)).delete(board);
     }
 
+    // 관리자
+    @Test
+    @DisplayName("관리자의_게시글_상세_조회_성공")
+    void 관리자의_게시글_상세_조회_성공() {
+        // given
+        Board savedBoard = createMemberBoard();
+        when(boardRepository.findById(1L)).thenReturn(Optional.of(savedBoard));
+
+        // when
+        BoardResponse findBoardDto = boardService.getBoard(1L, createAuthAdminDto());
+
+        // then
+        assertThat(findBoardDto)
+                .extracting("boardId", "title", "writer", "content")
+                .containsExactly(savedBoard.getId(), savedBoard.getTitle(), savedBoard.getWriter().getUsername(), savedBoard.getContent());
+
+        verify(boardRepository, times(1)).findById(savedBoard.getId());
+    }
+
+    @Test
+    @DisplayName("관리자의_게시글_수정_성공")
+    void 관리자의_게시글_수정_성공() {
+        // given
+        Date now = new Date();
+        Board beforeUpdateBoard = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+
+        BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", beforeUpdateBoard.getPassword());
+
+        when(boardRepository.findById(1L)).thenReturn(Optional.of(beforeUpdateBoard));
+
+        // when
+        BoardResponse boardResponse = boardService.update(1L, boardUpdateRequest, createAuthAdminDto());
+
+        // then
+        assertAll(
+                () -> assertThat(boardResponse)
+                        .extracting("boardId", "title", "content")
+                        .containsExactly(1L, "제목2", "내용2"),
+
+                () -> verify(boardRepository, times(1)).findById(any(Long.class))
+        );
+    }
+
+    @Test
+    @DisplayName("관리자의_게시글_삭제_성공")
+    void 관리자의_게시글_삭제_성공() {
+        // given
+        Date now = new Date();
+        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+        Long deleteBoard = board.getId();
+        doReturn(Optional.of(board)).when(boardRepository).findById(any(Long.class));
+
+        // when
+        boardService.delete(deleteBoard, createAuthAdminDto());
+
+        // then
+        verify(boardRepository, times(1)).delete(board);
+    }
+
+
+    private Board createMemberBoard() {
+        Date now = new Date();
+        return new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+    }
+
+    private AuthMemberDto createAuthAdminDto() {
+        return AuthMemberDto.builder()
+                .id(77L)
+                .isAdmin(true)
+                .username("admin")
+                .build();
+    }
+
 }
