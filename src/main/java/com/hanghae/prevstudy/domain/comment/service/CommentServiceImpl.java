@@ -8,10 +8,14 @@ import com.hanghae.prevstudy.domain.comment.entity.Comment;
 import com.hanghae.prevstudy.domain.comment.repositoroy.CommentRepository;
 import com.hanghae.prevstudy.domain.member.entity.Member;
 import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
+import com.hanghae.prevstudy.global.exception.PrevStudyException;
+import com.hanghae.prevstudy.global.exception.errorCode.BoardErrorCode;
 import com.hanghae.prevstudy.global.resolver.AuthMemberDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -26,13 +30,16 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentResponse add(Long boardId, CommentAddRequest commentAddRequest, AuthMemberDto authMemberDto) {
 
-        Board board = boardRepository.getReferenceById(boardId);
+        Optional<Board> board = boardRepository.findById(boardId);
+        if (board.isEmpty()) {
+            throw new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND);
+        }
         Member writer = memberRepository.getReferenceById(authMemberDto.getId());
 
         Comment newComment = Comment.builder()
                 .content(commentAddRequest.getContent())
                 .writer(writer)
-                .board(board)
+                .board(board.get())
                 .build();
         Comment savedComment = commentRepository.save(newComment);
 

@@ -18,6 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,8 +61,8 @@ public class CommentServiceTest {
 
         BDDMockito.given(memberRepository.getReferenceById(anyLong()))
                 .willReturn(referMember);
-        BDDMockito.given(boardRepository.getReferenceById(anyLong()))
-                .willReturn(referBoard);
+        BDDMockito.given(boardRepository.findById(anyLong()))
+                .willReturn(Optional.of(referBoard));
 
         BDDMockito.given(commentRepository.save(any(Comment.class)))
                 .willReturn(newComment(referMember, referBoard));
