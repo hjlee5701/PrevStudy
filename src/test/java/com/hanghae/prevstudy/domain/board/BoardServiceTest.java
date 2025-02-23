@@ -315,6 +315,22 @@ public class BoardServiceTest {
         );
     }
 
+    @Test
+    @DisplayName("관리자의_게시글_삭제_성공")
+    void 관리자의_게시글_삭제_성공() {
+        // given
+        Date now = new Date();
+        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+        Long deleteBoard = board.getId();
+        doReturn(Optional.of(board)).when(boardRepository).findById(any(Long.class));
+
+        // when
+        boardService.delete(deleteBoard, createAuthAdminDto());
+
+        // then
+        verify(boardRepository, times(1)).delete(board);
+    }
+
 
     private Board createMemberBoard() {
         Date now = new Date();
