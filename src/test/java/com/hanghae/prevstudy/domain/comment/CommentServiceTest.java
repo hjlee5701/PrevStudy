@@ -9,6 +9,7 @@ import com.hanghae.prevstudy.domain.comment.repositoroy.CommentRepository;
 import com.hanghae.prevstudy.domain.comment.service.CommentServiceImpl;
 import com.hanghae.prevstudy.domain.member.entity.Member;
 import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
+import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import com.hanghae.prevstudy.global.resolver.AuthMemberDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,11 +18,11 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 
@@ -77,6 +78,29 @@ public class CommentServiceTest {
                 () -> assertNotNull(commentResponse.getCommentId()),
                 () -> assertNotNull(commentResponse.getWriter()),
                 () -> assertNotNull(commentResponse.getContent())
+        );
+    }
+
+
+    @Test
+    @DisplayName("댓글_생성_실패 - 존재하지 않은 게시글")
+    void 댓글_생성_실패() {
+        // given
+        CommentAddRequest commentAddRequest = new CommentAddRequest("내용");
+
+        BDDMockito.given(boardRepository.findById(anyLong()))
+                .willReturn(Optional.empty());
+
+        // when
+        PrevStudyException exception = assertThrows(
+                PrevStudyException.class,
+                () -> commentService.add(anyLong(), commentAddRequest, createAuthMemberDto())
+        );
+
+        // then
+        assertAll(
+                () -> assertEquals("게시글이 존재하지 않습니다.", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getHttpStatus())
         );
     }
 }
