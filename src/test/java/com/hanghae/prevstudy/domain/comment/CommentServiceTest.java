@@ -128,6 +128,31 @@ public class CommentServiceTest {
         );
     }
 
+    @Test
+    @DisplayName("댓글_수정_실패 - 작성자 불일치")
+    void 작성자_불일치_댓글_수정_실패() {
+        // given
+        CommentRequest commentUpdateRequest = new CommentRequest("수정 내용");
+
+        Member referMember = Member.builder().id(999L).build();
+        Board referBoard = Board.builder().id(1L).title("제목").build();
+
+        BDDMockito.given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.of(newComment(referMember, referBoard)));
+
+        // when
+        PrevStudyException exception = assertThrows(
+                PrevStudyException.class,
+                () -> commentService.update(anyLong(), commentUpdateRequest, createAuthMemberDto())
+        );
+
+        // then
+        assertAll(
+                () -> assertEquals("댓글에 대한 접근 권한이 없습니다.", exception.getMessage()),
+                () -> assertEquals(HttpStatus.FORBIDDEN, exception.getHttpStatus())
+        );
+    }
+
 
     @Test
     @DisplayName("댓글_수정_성공")

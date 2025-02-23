@@ -53,16 +53,22 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponse update(Long commentId, CommentRequest commentUpdateRequest, AuthMemberDto authMemberDto) {
 
-        Comment findComment = commentRepository.findById(commentId)
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new PrevStudyException(CommentErrorCode.COMMENT_NOT_FOUND));
 
+
+        // 작성자 불일치
+        if (!isWriterMatch(authMemberDto.getId(), comment.getWriter().getId())) {
+            throw new PrevStudyException(CommentErrorCode.FORBIDDEN_ACCESS);
+        }
+
         // 댓글 수정
-        findComment.update(commentUpdateRequest.getContent());
+        comment.update(commentUpdateRequest.getContent());
         
         return CommentResponse.builder()
-                .commentId(findComment.getId())
+                .commentId(comment.getId())
                 .writer(authMemberDto.getUsername())
-                .content(findComment.getContent())
+                .content(comment.getContent())
                 .build();
     }
 
