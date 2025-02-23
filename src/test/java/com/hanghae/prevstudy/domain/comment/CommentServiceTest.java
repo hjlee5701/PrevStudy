@@ -116,13 +116,42 @@ public class CommentServiceTest {
         // when
         PrevStudyException exception = assertThrows(
                 PrevStudyException.class,
-                () -> commentService.update(anyLong(), commentUpdateRequest)
+                () -> commentService.update(anyLong(), commentUpdateRequest, createAuthMemberDto())
         );
 
         // then
         assertAll(
                 () -> assertEquals("댓글이 존재하지 않습니다.", exception.getMessage()),
                 () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getHttpStatus())
+        );
+    }
+
+
+    @Test
+    @DisplayName("댓글_수정_성공")
+    void 댓글_수정_성공() {
+        // given
+        CommentRequest commentUpdateRequest = new CommentRequest("수정 내용");
+
+        Member referMember = Member.builder().id(1L).build();
+        Board referBoard = Board.builder().id(1L).title("제목").build();
+        Comment savedComment = newComment(referMember, referBoard);
+
+        String beforeUpdateContent = savedComment.getContent();
+
+        BDDMockito.given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.of(savedComment));
+
+        // when
+        CommentResponse commentResponse
+                = commentService.update(anyLong(), commentUpdateRequest, createAuthMemberDto());
+
+        // then
+        assertAll(
+                () -> assertNotNull(commentResponse.getCommentId()),
+                () -> assertNotNull(commentResponse.getWriter()),
+                () -> assertNotNull(commentResponse.getContent()),
+                () -> assertNotEquals(beforeUpdateContent, commentResponse.getContent())
         );
     }
 }

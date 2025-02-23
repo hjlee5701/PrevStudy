@@ -52,13 +52,22 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentResponse update(Long commentId, CommentRequest commentUpdateRequest) {
+    public CommentResponse update(Long commentId, CommentRequest commentUpdateRequest, AuthMemberDto authMemberDto) {
 
         Optional<Comment> findComment = commentRepository.findById(commentId);
 
+        // 댓글 존재 유무
         if (findComment.isEmpty()) {
             throw new PrevStudyException(CommentErrorCode.COMMENT_NOT_FOUND);
         }
-        return  null;
+        
+        // 댓글 수정
+        findComment.get().update(commentUpdateRequest.getContent());
+        
+        return CommentResponse.builder()
+                .commentId(findComment.get().getId())
+                .writer(authMemberDto.getUsername())
+                .content(findComment.get().getContent())
+                .build();
     }
 }
