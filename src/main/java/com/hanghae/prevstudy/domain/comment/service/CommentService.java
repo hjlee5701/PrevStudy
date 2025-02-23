@@ -6,4 +6,6 @@ import com.hanghae.prevstudy.global.resolver.AuthMemberDto;
 
 public interface CommentService {
     CommentResponse add(Long boardId, CommentRequest commentAddRequest, AuthMemberDto authMemberDto);
+
+    CommentResponse update(Long commentId, CommentRequest commentUpdateRequest);
 }

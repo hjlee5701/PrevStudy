@@ -10,6 +10,7 @@ import com.hanghae.prevstudy.domain.member.entity.Member;
 import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import com.hanghae.prevstudy.global.exception.errorCode.BoardErrorCode;
+import com.hanghae.prevstudy.global.exception.errorCode.CommentErrorCode;
 import com.hanghae.prevstudy.global.resolver.AuthMemberDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +49,16 @@ public class CommentServiceImpl implements CommentService {
                 .writer(authMemberDto.getUsername())
                 .content(savedComment.getContent())
                 .build();
+    }
+
+    @Override
+    public CommentResponse update(Long commentId, CommentRequest commentUpdateRequest) {
+
+        Optional<Comment> findComment = commentRepository.findById(commentId);
+
+        if (findComment.isEmpty()) {
+            throw new PrevStudyException(CommentErrorCode.COMMENT_NOT_FOUND);
+        }
+        return  null;
     }
 }

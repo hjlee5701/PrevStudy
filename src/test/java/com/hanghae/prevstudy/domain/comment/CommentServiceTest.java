@@ -103,4 +103,26 @@ public class CommentServiceTest {
                 () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getHttpStatus())
         );
     }
+
+    @Test
+    @DisplayName("댓글_수정_실패 - 존재하지 않은 댓글")
+    void 댓글_수정_실패() {
+        // given
+        CommentRequest commentUpdateRequest = new CommentRequest("수정 내용");
+
+        BDDMockito.given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.empty());
+
+        // when
+        PrevStudyException exception = assertThrows(
+                PrevStudyException.class,
+                () -> commentService.update(anyLong(), commentUpdateRequest)
+        );
+
+        // then
+        assertAll(
+                () -> assertEquals("댓글이 존재하지 않습니다.", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getHttpStatus())
+        );
+    }
 }
