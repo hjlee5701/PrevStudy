@@ -272,4 +272,19 @@ public class CommentServiceTest {
                 () -> assertNotEquals(beforeUpdateContent, commentResponse.getContent())
         );
     }
+
+    @Test
+    @DisplayName("관리자의_댓글_삭제_성공")
+    void 관리자의_댓글_삭제_성공() {
+        // given
+        Member referMember = Member.builder().id(999L).build();
+        Board referBoard = Board.builder().id(1L).title("제목").build();
+
+        BDDMockito.given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.of(newComment(referMember, referBoard)));
+
+        // when, then
+        assertDoesNotThrow(() -> commentService.delete(anyLong(), createAuthAdminDto()));
+        verify(commentRepository, times(1)).deleteById(anyLong());
+    }
 }
