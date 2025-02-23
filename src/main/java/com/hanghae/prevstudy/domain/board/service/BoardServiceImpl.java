@@ -56,7 +56,7 @@ public class BoardServiceImpl implements BoardService {
         Long loginMemberId = authMemberDto.getId();
         Member writer = findBoard.getWriter();
 
-        if (!isWriterMatch(loginMemberId, writer.getId())) {
+        if (!authMemberDto.isAdmin() && !isWriterMatch(loginMemberId, writer.getId())) {
             throw new PrevStudyException(BoardErrorCode.FORBIDDEN_ACCESS);
         }
 
