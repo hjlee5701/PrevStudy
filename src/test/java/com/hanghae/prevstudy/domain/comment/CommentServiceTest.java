@@ -157,7 +157,7 @@ public class CommentServiceTest {
 
     @Test
     @DisplayName("댓글_삭제_실패 - 존재하지 않은 댓글")
-    void 댓글_삭제_실패() {
+    void 존재하지_않은_댓글_삭제_실패() {
         // given
         BDDMockito.given(commentRepository.findById(anyLong()))
                 .willReturn(Optional.empty());
@@ -172,6 +172,29 @@ public class CommentServiceTest {
         assertAll(
                 () -> assertEquals("댓글이 존재하지 않습니다.", exception.getMessage()),
                 () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getHttpStatus())
+        );
+    }
+
+    @Test
+    @DisplayName("댓글_삭제_실패 - 작성자 불일치")
+    void 작성자_불일치_댓글_삭제_실패() {
+        // given
+        Member referMember = Member.builder().id(999L).build();
+        Board referBoard = Board.builder().id(1L).title("제목").build();
+
+        BDDMockito.given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.of(newComment(referMember, referBoard)));
+
+        // when
+        PrevStudyException exception = assertThrows(
+                PrevStudyException.class,
+                () -> commentService.delete(anyLong(), createAuthMemberDto())
+        );
+
+        // then
+        assertAll(
+                () -> assertEquals("댓글에 대한 접근 권한이 없습니다.", exception.getMessage()),
+                () -> assertEquals(HttpStatus.FORBIDDEN, exception.getHttpStatus())
         );
     }
 }

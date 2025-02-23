@@ -31,16 +31,15 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentResponse add(Long boardId, CommentRequest commentAddRequest, AuthMemberDto authMemberDto) {
 
-        Optional<Board> board = boardRepository.findById(boardId);
-        if (board.isEmpty()) {
-            throw new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND);
-        }
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new PrevStudyException(BoardErrorCode.BOARD_NOT_FOUND));
+
         Member writer = memberRepository.getReferenceById(authMemberDto.getId());
 
         Comment newComment = Comment.builder()
                 .content(commentAddRequest.getContent())
                 .writer(writer)
-                .board(board.get())
+                .board(board)
                 .build();
         Comment savedComment = commentRepository.save(newComment);
 
@@ -54,30 +53,31 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponse update(Long commentId, CommentRequest commentUpdateRequest, AuthMemberDto authMemberDto) {
 
-        Optional<Comment> findComment = commentRepository.findById(commentId);
+        Comment findComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new PrevStudyException(CommentErrorCode.COMMENT_NOT_FOUND));
 
-        // 댓글 존재 유무
-        if (findComment.isEmpty()) {
-            throw new PrevStudyException(CommentErrorCode.COMMENT_NOT_FOUND);
-        }
-        
         // 댓글 수정
-        findComment.get().update(commentUpdateRequest.getContent());
+        findComment.update(commentUpdateRequest.getContent());
         
         return CommentResponse.builder()
-                .commentId(findComment.get().getId())
+                .commentId(findComment.getId())
                 .writer(authMemberDto.getUsername())
-                .content(findComment.get().getContent())
+                .content(findComment.getContent())
                 .build();
     }
 
     @Override
     public void delete(Long commentId, AuthMemberDto authMemberDto) {
-        Optional<Comment> findComment = commentRepository.findById(commentId);
 
-        // 댓글 존재 유무
-        if (findComment.isEmpty()) {
-            throw new PrevStudyException(CommentErrorCode.COMMENT_NOT_FOUND);
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new PrevStudyException(CommentErrorCode.COMMENT_NOT_FOUND));
+
+        if (!isWriterMatch(authMemberDto.getId(), comment.getWriter().getId())) {
+            throw new PrevStudyException(CommentErrorCode.FORBIDDEN_ACCESS);
         }
+    }
+
+    public boolean isWriterMatch(Long loginMemberId, Long writerId) {
+        return loginMemberId.equals(writerId);
     }
 }
