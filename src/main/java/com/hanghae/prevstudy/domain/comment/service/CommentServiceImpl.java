@@ -70,4 +70,14 @@ public class CommentServiceImpl implements CommentService {
                 .content(findComment.get().getContent())
                 .build();
     }
+
+    @Override
+    public void delete(Long commentId, AuthMemberDto authMemberDto) {
+        Optional<Comment> findComment = commentRepository.findById(commentId);
+
+        // 댓글 존재 유무
+        if (findComment.isEmpty()) {
+            throw new PrevStudyException(CommentErrorCode.COMMENT_NOT_FOUND);
+        }
+    }
 }

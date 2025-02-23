@@ -8,4 +8,6 @@ public interface CommentService {
     CommentResponse add(Long boardId, CommentRequest commentAddRequest, AuthMemberDto authMemberDto);
 
     CommentResponse update(Long commentId, CommentRequest commentUpdateRequest, AuthMemberDto authMemberDto);
+
+    void delete(Long commentId, AuthMemberDto authMemberDto);
 }

@@ -154,4 +154,24 @@ public class CommentServiceTest {
                 () -> assertNotEquals(beforeUpdateContent, commentResponse.getContent())
         );
     }
+
+    @Test
+    @DisplayName("댓글_삭제_실패 - 존재하지 않은 댓글")
+    void 댓글_삭제_실패() {
+        // given
+        BDDMockito.given(commentRepository.findById(anyLong()))
+                .willReturn(Optional.empty());
+
+        // when
+        PrevStudyException exception = assertThrows(
+                PrevStudyException.class,
+                () -> commentService.delete(anyLong(), createAuthMemberDto())
+        );
+
+        // then
+        assertAll(
+                () -> assertEquals("댓글이 존재하지 않습니다.", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getHttpStatus())
+        );
+    }
 }
