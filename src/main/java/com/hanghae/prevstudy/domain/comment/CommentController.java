@@ -20,7 +20,7 @@ public class CommentController {
 
     @PostMapping("/{boardId}")
     public ResponseEntity<ApiResponse<CommentResponse>> addComment (
-            @PathVariable(value = "boardId") long boardId,
+            @PathVariable(value = "boardId") Long boardId,
             @RequestBody @Valid CommentRequest commentRequest,
             @AuthMemberInfo AuthMemberDto authMemberDto
             ) {
@@ -31,12 +31,22 @@ public class CommentController {
 
     @PatchMapping("/{commentId}")
     public ResponseEntity<ApiResponse<CommentResponse>> updateComment (
-            @PathVariable(value = "commentId") long commentId,
+            @PathVariable(value = "commentId") Long commentId,
             @RequestBody @Valid CommentRequest commentRequest,
             @AuthMemberInfo AuthMemberDto authMemberDto
     ) {
 
         return ResponseEntity.ok(
                 ApiResponse.success("댓글 수정 성공", commentService.update(commentId, commentRequest, authMemberDto)));
+    }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<ApiResponse<Void>> deleteBoard(
+            @PathVariable("commentId") Long commentId,
+            @AuthMemberInfo AuthMemberDto authMemberDto
+    ) {
+        commentService.delete(commentId, authMemberDto);
+        return ResponseEntity.ok(
+                ApiResponse.success("댓글 삭제 성공"));
     }
 }

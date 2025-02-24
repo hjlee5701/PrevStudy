@@ -162,5 +162,25 @@ public class CommentControllerTest extends AbstractControllerTest {
         );
     }
 
+    @Test
+    @DisplayName("댓글_삭제_성공")
+    void 댓글_삭제_성공() throws Exception {
+        // given
+        Long commentId = 1L;
+
+        // when
+        ResultActions deleteCommentResult = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .delete(COMMENT_URL + "/" + commentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        deleteCommentResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("댓글 삭제 성공"),
+                jsonPath("$.data").isEmpty()
+        );
+    }
 
 }
