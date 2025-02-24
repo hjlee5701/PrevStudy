@@ -25,7 +25,7 @@ public class CommentController {
             @AuthMemberInfo AuthMemberDto authMemberDto
             ) {
 
-        return null;
-
+        return ResponseEntity.ok(
+                ApiResponse.success("댓글 생성 성공", commentService.add(boardId, commentRequest, authMemberDto)));
     }
 }
