@@ -1,5 +1,6 @@
 package com.hanghae.prevstudy.domain.board.entity;
 
+import com.hanghae.prevstudy.domain.comment.entity.Comment;
 import com.hanghae.prevstudy.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -30,6 +33,9 @@ public class Board {
     private Member writer;
     private String content;
     private String password;
+
+    @OneToMany(mappedBy = "board")
+    private List<Comment> comments = new ArrayList<>();
 
     @CreationTimestamp
     private Date regAt;
