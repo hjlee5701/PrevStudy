@@ -6,6 +6,7 @@ import com.hanghae.prevstudy.domain.comment.service.CommentServiceImpl;
 import com.hanghae.prevstudy.domain.common.AbstractControllerTest;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import com.hanghae.prevstudy.global.exception.errorCode.BoardErrorCode;
+import com.hanghae.prevstudy.global.exception.errorCode.CommentErrorCode;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -109,6 +111,35 @@ public class CommentControllerTest extends AbstractControllerTest {
                 jsonPath("$.data.content").isNotEmpty()
         );
     }
+
+    private ResultActions executeUpdateComment(String commentId, String content) throws Exception {
+        return mockMvc.perform(
+                MockMvcRequestBuilders
+                        .patch(COMMENT_URL + "/" + commentId)
+                        .content(createRequestToJson(new CommentRequest(content)))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+    }
+
+    @Test
+    @DisplayName("댓글_수정_실패 - PK 불일치")
+    void 댓글_PK_불일치_수정_실패() throws Exception {
+        // given
+        BDDMockito.given(commentService.update(any(Long.class), any(CommentRequest.class), Mockito.any()))
+                .willThrow(new PrevStudyException(CommentErrorCode.COMMENT_NOT_FOUND));
+
+        // when
+        ResultActions updateCommentResult = executeUpdateComment("1", "내용2");
+
+        // then
+        updateCommentResult.andExpectAll(
+                status().isBadRequest(),
+                jsonPath("$.status").value(400),
+                jsonPath("$.message").value("댓글이 존재하지 않습니다."),
+                jsonPath("$.data").isEmpty()
+        );
+    }
+
 
 
 }

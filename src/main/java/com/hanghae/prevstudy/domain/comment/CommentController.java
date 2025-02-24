@@ -28,4 +28,15 @@ public class CommentController {
         return ResponseEntity.ok(
                 ApiResponse.success("댓글 생성 성공", commentService.add(boardId, commentRequest, authMemberDto)));
     }
+
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<ApiResponse<CommentResponse>> updateComment (
+            @PathVariable(value = "commentId") long commentId,
+            @RequestBody @Valid CommentRequest commentRequest,
+            @AuthMemberInfo AuthMemberDto authMemberDto
+    ) {
+
+        return ResponseEntity.ok(
+                ApiResponse.success("댓글 수정 성공", commentService.update(commentId, commentRequest, authMemberDto)));
+    }
 }
