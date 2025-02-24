@@ -141,5 +141,26 @@ public class CommentControllerTest extends AbstractControllerTest {
     }
 
 
+    @Test
+    @DisplayName("댓글_수정_성공")
+    void 댓글_수정_성공() throws Exception {
+        // given
+        BDDMockito.given(commentService.update(any(Long.class), any(CommentRequest.class), Mockito.any()))
+                .willReturn(new CommentResponse(1L, "tester", "내용2"));
+
+        // when
+        ResultActions updateCommentResult = executeUpdateComment("1", "내용2");
+
+        // then
+        updateCommentResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("댓글 수정 성공"),
+                jsonPath("$.data.commentId").isNotEmpty(),
+                jsonPath("$.data.writer").isNotEmpty(),
+                jsonPath("$.data.content").isNotEmpty()
+        );
+    }
+
 
 }
