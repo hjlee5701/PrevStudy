@@ -5,23 +5,30 @@ import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
 import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import com.hanghae.prevstudy.domain.board.entity.Board;
 import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
+import com.hanghae.prevstudy.domain.comment.dto.CommentResponse;
+import com.hanghae.prevstudy.domain.comment.entity.Comment;
+import com.hanghae.prevstudy.domain.comment.repositoroy.CommentRepository;
 import com.hanghae.prevstudy.domain.member.entity.Member;
 import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import com.hanghae.prevstudy.global.exception.errorCode.BoardErrorCode;
 import com.hanghae.prevstudy.global.resolver.AuthMemberDto;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
 
     @Override
@@ -47,7 +54,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public BoardResponse getBoard(Long boardId, AuthMemberDto authMemberDto) {
 
         Board findBoard = boardRepository.findById(boardId)
@@ -65,27 +72,43 @@ public class BoardServiceImpl implements BoardService {
                 .title(findBoard.getTitle())
                 .writer(writer.getUsername())
                 .content(findBoard.getContent())
+                .comment(convertToCommentResponses(findBoard.getComments()))
                 .regAt(findBoard.getRegAt())
                 .modAt(findBoard.getModAt())
                 .build();
     }
 
     @Override
+    @Transactional(readOnly=true)
     public List<BoardResponse> getBoards() {
-        List<BoardResponse> boardResponses = new ArrayList<>();
-        List<Board> findBoards = boardRepository.findAll();
-        for (Board board : findBoards) {
-            BoardResponse response = BoardResponse.builder()
-                    .boardId(board.getId())
-                    .title(board.getTitle())
-                    .writer(board.getWriter().getUsername())
-                    .content(board.getContent())
-                    .regAt(board.getRegAt())
-                    .modAt(board.getModAt())
-                    .build();
-            boardResponses.add(response);
-        }
-        return boardResponses;
+        return boardRepository.findAll().stream()
+                .map(this::convertToBoardResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    private BoardResponse convertToBoardResponse(Board board) {
+        return BoardResponse.builder()
+                .boardId(board.getId())
+                .title(board.getTitle())
+                .writer(board.getWriter().getUsername())
+                .content(board.getContent())
+                .regAt(board.getRegAt())
+                .modAt(board.getModAt())
+                .comment(convertToCommentResponses(board.getComments())) // List<Comment> → List<CommentResponse>
+                .build();
+    }
+
+    private List<CommentResponse> convertToCommentResponses(List<Comment> comments) {
+        return Optional.ofNullable(comments)
+                .orElse(Collections.emptyList())  // comments가 null이면 빈 리스트 반환
+                .stream()
+                .map(comment -> new CommentResponse(
+                        comment.getId(),
+                        comment.getWriter().getUsername(),
+                        comment.getContent()
+                ))
+                .collect(Collectors.toList());
     }
 
     @Override
