@@ -1,6 +1,7 @@
 package com.hanghae.prevstudy.domain.comment;
 
 import com.hanghae.prevstudy.domain.comment.dto.CommentRequest;
+import com.hanghae.prevstudy.domain.comment.dto.CommentResponse;
 import com.hanghae.prevstudy.domain.comment.service.CommentServiceImpl;
 import com.hanghae.prevstudy.domain.common.AbstractControllerTest;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
@@ -87,6 +88,25 @@ public class CommentControllerTest extends AbstractControllerTest {
                 jsonPath("$.status").value("400"),
                 jsonPath("$.message").value("게시글이 존재하지 않습니다."),
                 jsonPath("$.data").isEmpty()
+        );
+    }
+
+    @Test
+    @DisplayName("댓글_생성_성공")
+    void 댓글_생성_성공() throws Exception {
+        // given
+        BDDMockito.given(commentService.add(anyLong(), Mockito.any(), Mockito.any()))
+                .willReturn(new CommentResponse(1L, "test", "내용"));
+        // when
+        ResultActions resultActions = executeAddComment(1L, "내용");
+
+        resultActions.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("댓글 생성 성공"),
+                jsonPath("$.data.commentId").isNotEmpty(),
+                jsonPath("$.data.writer").isNotEmpty(),
+                jsonPath("$.data.content").isNotEmpty()
         );
     }
 
