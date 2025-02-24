@@ -6,6 +6,7 @@ import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import com.hanghae.prevstudy.domain.board.entity.Board;
 import com.hanghae.prevstudy.domain.board.repository.BoardRepository;
 import com.hanghae.prevstudy.domain.board.service.BoardServiceImpl;
+import com.hanghae.prevstudy.domain.comment.entity.Comment;
 import com.hanghae.prevstudy.domain.member.entity.Member;
 import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
@@ -50,7 +51,7 @@ public class BoardServiceTest {
         Member referencedMember = Member.builder().id(authMemberDto.getId()).username(authMemberDto.getUsername()).build();
 
         Board newBoard
-                = new Board(1L, "제목", referencedMember, "내용", "비밀번호", new Date(), new Date());
+                = new Board(1L, "제목", referencedMember, "내용", "비밀번호", null, new Date(), new Date());
 
         BDDMockito.given(memberRepository.getReferenceById(anyLong())).willReturn(referencedMember);
         BDDMockito.given(boardRepository.save(any(Board.class))).willReturn(newBoard);
@@ -86,7 +87,7 @@ public class BoardServiceTest {
     void 게시글_작성자_불일치로_상세_조회_실패() {
         // given
         Board findBoard
-                = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", new Date(), new Date());
+                = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, new Date(), new Date());
 
         when(boardRepository.findById(anyLong())).thenReturn(Optional.of(findBoard));
 
@@ -99,14 +100,19 @@ public class BoardServiceTest {
         assertThat(HttpStatus.FORBIDDEN).isEqualTo(exception.getHttpStatus());
     }
 
+    private Comment createComment(){
+        return Comment.builder().id(1L).writer(Member.builder().id(1L).username("tester").build()).content("내용").build();
+    }
     @Test
     @DisplayName("게시글_상세_조회_성공")
     void 게시글_상세_조회_성공() {
         // given
         Date now = new Date();
+        Comment comment1 = createComment();
+        Comment comment2 = createComment();
         Member writer = Member.builder().id(1L).username("test").build();
         Board savedBoard
-                = new Board(1L, "제목", writer, "내용", "비밀번호", now, now);
+                = new Board(1L, "제목", writer, "내용", "비밀번호", List.of(comment1, comment2), now, now);
 
         when(boardRepository.findById(1L)).thenReturn(Optional.of(savedBoard));
 
@@ -118,6 +124,7 @@ public class BoardServiceTest {
                 .extracting("boardId", "title", "writer", "content")
                 .containsExactly(savedBoard.getId(), savedBoard.getTitle(), savedBoard.getWriter().getUsername(), savedBoard.getContent());
 
+        assertThat(findBoardDto.getComment()).hasSize(2);
         verify(boardRepository, times(1)).findById(savedBoard.getId());
     }
 
@@ -125,11 +132,12 @@ public class BoardServiceTest {
     @DisplayName("게시글_전체_조회_성공")
     void 게시글_전체_조회_성공() {
         // given
+        Comment comment1 = createComment();
         Date now = new Date();
         Board findBoard1
-                = new Board(1L, "제목", Member.builder().username("tester1").build(), "내용", "비밀번호", now, now);
+                = new Board(1L, "제목", Member.builder().username("tester1").build(), "내용", "비밀번호", List.of(comment1), now, now);
         Board findBoard2
-                = new Board(2L, "제목", Member.builder().username("tester2").build(), "내용", "비밀번호", now, now);
+                = new Board(2L, "제목", Member.builder().username("tester2").build(), "내용", "비밀번호", null, now, now);
 
         List<Board> findBoards = List.of(findBoard1, findBoard2);
 
@@ -140,6 +148,7 @@ public class BoardServiceTest {
 
         // then
         assertEquals(2, findBoardsDto.size());
+        assertEquals(1, findBoardsDto.get(0).getComment().size());
     }
 
     @Test
@@ -160,7 +169,7 @@ public class BoardServiceTest {
     void 게시글_작성자_불일치로_수정_실패() {
         // given
         Date now = new Date();
-        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", "비밀번호2");
 
@@ -180,7 +189,7 @@ public class BoardServiceTest {
     void 게시글_비밀번호_불일치() {
         // given
         Date now = new Date();
-        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", "비밀번호2");
 
@@ -201,7 +210,7 @@ public class BoardServiceTest {
     void 게시글_수정_성공() {
         // given
         Date now = new Date();
-        Board beforeUpdateBoard = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+        Board beforeUpdateBoard = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", beforeUpdateBoard.getPassword());
 
@@ -243,7 +252,7 @@ public class BoardServiceTest {
     void 게시글_작성자_불일치로_삭제_실패() {
         // given
         Date now = new Date();
-        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, now, now);
 
         BDDMockito.given(boardRepository.findById(anyLong())).willReturn(Optional.of(board));
 
@@ -261,7 +270,7 @@ public class BoardServiceTest {
     void 게시글_삭제_성공() {
         // given
         Date now = new Date();
-        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, now, now);
         Long deleteBoard = board.getId();
         doReturn(Optional.of(board)).when(boardRepository).findById(any(Long.class));
 
@@ -296,7 +305,7 @@ public class BoardServiceTest {
     void 관리자의_게시글_수정_성공() {
         // given
         Date now = new Date();
-        Board beforeUpdateBoard = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+        Board beforeUpdateBoard = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호",null, now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", beforeUpdateBoard.getPassword());
 
@@ -320,7 +329,7 @@ public class BoardServiceTest {
     void 관리자의_게시글_삭제_성공() {
         // given
         Date now = new Date();
-        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+        Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호",null, now, now);
         Long deleteBoard = board.getId();
         doReturn(Optional.of(board)).when(boardRepository).findById(any(Long.class));
 
@@ -334,7 +343,7 @@ public class BoardServiceTest {
 
     private Board createMemberBoard() {
         Date now = new Date();
-        return new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", now, now);
+        return new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호",null, now, now);
     }
 
     private AuthMemberDto createAuthAdminDto() {

@@ -5,6 +5,7 @@ import com.hanghae.prevstudy.domain.board.dto.BoardAddRequest;
 import com.hanghae.prevstudy.domain.board.dto.BoardResponse;
 import com.hanghae.prevstudy.domain.board.dto.BoardUpdateRequest;
 import com.hanghae.prevstudy.domain.board.service.BoardServiceImpl;
+import com.hanghae.prevstudy.domain.comment.dto.CommentResponse;
 import com.hanghae.prevstudy.domain.common.AbstractControllerTest;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import com.hanghae.prevstudy.global.exception.errorCode.BoardErrorCode;
@@ -25,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -148,8 +150,10 @@ public class BoardControllerTest extends AbstractControllerTest {
     @DisplayName("게시글_전체_조회_성공")
     void 게시글_전체_조회_성공() throws Exception {
         // given
+        List<CommentResponse> commentResponses
+                = List.of(new CommentResponse(1L, "tester", "내용"));
         List<BoardResponse> boardResponses
-                = List.of(new BoardResponse(1L, "", "", "", new Date(), new Date(), null));
+                = List.of(new BoardResponse(1L, "", "", "", new Date(), new Date(), commentResponses));
 
         doReturn(boardResponses).when(boardService).getBoards();
 
@@ -165,7 +169,12 @@ public class BoardControllerTest extends AbstractControllerTest {
                 status().isOk(),
                 jsonPath("$.status").value("200"),
                 jsonPath("$.message").value("게시글 전체 조회 성공"),
-                jsonPath("$.data").isArray()
+                jsonPath("$.data").isArray(),
+                jsonPath("$.data").isArray(),
+                jsonPath("$.data", hasSize(1)),
+                jsonPath("$.data[0].comment").isArray(),
+                jsonPath("$.data[0].comment", hasSize(1))
+
         );
     }
 
