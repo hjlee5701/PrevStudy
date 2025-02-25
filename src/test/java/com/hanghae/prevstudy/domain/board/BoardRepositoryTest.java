@@ -102,6 +102,7 @@ public class BoardRepositoryTest {
     }
 
     @Test
+    @DisplayName("게시글_수정_성공")
     void 게시글_수정_성공() {
         // given
         Board savedBoard = boardRepository.save(newBoard());
