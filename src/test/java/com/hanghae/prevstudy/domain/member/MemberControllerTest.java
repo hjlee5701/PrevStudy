@@ -8,10 +8,10 @@ import com.hanghae.prevstudy.domain.member.controller.MemberController;
 import com.hanghae.prevstudy.domain.member.dto.AuthResultDto;
 import com.hanghae.prevstudy.domain.member.dto.LoginRequest;
 import com.hanghae.prevstudy.domain.member.dto.LoginResponse;
-import com.hanghae.prevstudy.domain.member.dto.MemberAddRequest;
-import com.hanghae.prevstudy.domain.member.exception.MemberErrorCode;
+import com.hanghae.prevstudy.domain.member.dto.SignupRequest;
+import com.hanghae.prevstudy.global.exception.errorCode.MemberErrorCode;
 import com.hanghae.prevstudy.domain.member.service.MemberService;
-import com.hanghae.prevstudy.domain.security.TokenDto;
+import com.hanghae.prevstudy.domain.security.dto.TokenDto;
 import com.hanghae.prevstudy.global.exception.GlobalExceptionHandler;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.hamcrest.Matchers;
@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -106,13 +107,33 @@ public class MemberControllerTest {
         );
     }
 
+    @Test
+    @DisplayName("isAdmin_null_인_회원가입_요청_성공")
+    void isAdmin_값_없는_일반_회원의_가입_요청_성공() throws Exception {
+        SignupRequest request = new SignupRequest(SAMPLE_VALID_USERNAME, SAMPLE_VALID_PASSWORD, null);
+        ResultActions singUpResult = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post(REQUEST_URL)
+                        .content(createRequestToJson(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+        // then
+        assertThat(request.getIsAdmin()).isFalse();
+        singUpResult.andExpectAll(
+                status().isOk(),
+                jsonPath("$.status").value(200),
+                jsonPath("$.message").value("회원가입 성공"),
+                jsonPath("$.data").isEmpty()
+        );
+    }
+
     private ResultActions executeSignup(String username, String password) throws Exception {
-        MemberAddRequest memberAddRequest = new MemberAddRequest(username, password);
+        SignupRequest signupRequest = new SignupRequest(username, password, false);
 
         return mockMvc.perform(
                 MockMvcRequestBuilders
                         .post(REQUEST_URL)
-                        .content(createRequestToJson(memberAddRequest))
+                        .content(createRequestToJson(signupRequest))
                         .contentType(MediaType.APPLICATION_JSON)
         );
     }
@@ -163,7 +184,7 @@ public class MemberControllerTest {
     void 로그인_성공() throws Exception {
         // given
         TokenDto tokenDto = new TokenDto("1", "accessTokenValue", "refreshTokenValue");
-        LoginResponse loginResponse = new LoginResponse(1L);
+        LoginResponse loginResponse = new LoginResponse(1L, false);
 
         BDDMockito.given(memberService.login(any(LoginRequest.class)))
                 .willReturn(new AuthResultDto(tokenDto, loginResponse));

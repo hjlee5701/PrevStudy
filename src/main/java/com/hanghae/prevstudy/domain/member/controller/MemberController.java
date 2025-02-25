@@ -3,7 +3,7 @@ package com.hanghae.prevstudy.domain.member.controller;
 import com.hanghae.prevstudy.domain.member.dto.AuthResultDto;
 import com.hanghae.prevstudy.domain.member.dto.LoginRequest;
 import com.hanghae.prevstudy.domain.member.dto.LoginResponse;
-import com.hanghae.prevstudy.domain.member.dto.MemberAddRequest;
+import com.hanghae.prevstudy.domain.member.dto.SignupRequest;
 import com.hanghae.prevstudy.domain.member.service.MemberService;
 import com.hanghae.prevstudy.global.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -19,11 +19,12 @@ public class MemberController {
 
     private final MemberService memberService;
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody MemberAddRequest memberAddRequest) {
-        memberService.signup(memberAddRequest);
+    public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody SignupRequest signupRequest) {
+        memberService.signup(signupRequest);
         return ResponseEntity.ok(ApiResponse.success("회원가입 성공", null));
     }
 
+    // TODO 수정
     @GetMapping
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
         AuthResultDto authResult = memberService.login(loginRequest);

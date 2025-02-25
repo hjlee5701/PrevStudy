@@ -2,6 +2,7 @@ package com.hanghae.prevstudy.domain.security;
 
 import com.hanghae.prevstudy.domain.member.entity.Member;
 import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
+import com.hanghae.prevstudy.domain.security.service.UserDetailsServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +43,7 @@ public class UserDetailsServiceImplTest {
     @DisplayName("토큰_인증_성공_후_사용자_정보_로드_성공")
     void 사용자_정보_로드_성공() {
         // given
-        Member member = new Member(1L, "인증 사용자", "비밀번호");
+        Member member = new Member(1L, "인증 사용자", "비밀번호", false);
         
         BDDMockito.given(memberRepository.findById(anyLong()))
                 .willReturn(Optional.of(member));

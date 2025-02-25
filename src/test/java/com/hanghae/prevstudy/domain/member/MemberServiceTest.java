@@ -3,13 +3,13 @@ package com.hanghae.prevstudy.domain.member;
 import com.hanghae.prevstudy.domain.member.dto.AuthResultDto;
 import com.hanghae.prevstudy.domain.member.dto.LoginRequest;
 import com.hanghae.prevstudy.domain.member.dto.LoginResponse;
-import com.hanghae.prevstudy.domain.member.dto.MemberAddRequest;
+import com.hanghae.prevstudy.domain.member.dto.SignupRequest;
 import com.hanghae.prevstudy.domain.member.entity.Member;
-import com.hanghae.prevstudy.domain.member.exception.MemberErrorCode;
+import com.hanghae.prevstudy.global.exception.errorCode.MemberErrorCode;
 import com.hanghae.prevstudy.domain.member.repository.MemberRepository;
 import com.hanghae.prevstudy.domain.member.service.MemberServiceImpl;
-import com.hanghae.prevstudy.domain.security.TokenDto;
-import com.hanghae.prevstudy.domain.security.TokenProvider;
+import com.hanghae.prevstudy.domain.security.dto.TokenDto;
+import com.hanghae.prevstudy.domain.security.service.TokenProvider;
 import com.hanghae.prevstudy.global.exception.PrevStudyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
@@ -26,7 +25,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@ActiveProfiles("test")
 public class MemberServiceTest {
     @Mock
     private MemberRepository memberRepository;
@@ -40,7 +38,7 @@ public class MemberServiceTest {
     @DisplayName("회원_가입_username_중복")
     void 회원_가입_username_중복() {
         // given
-        MemberAddRequest memberAddRequest = new MemberAddRequest("회원", "비밀번호");
+        SignupRequest signupRequest = new SignupRequest("회원", "비밀번호", false);
         Member newMember = Member.builder()
                 .id(1L)
                 .username("회원")
@@ -50,7 +48,7 @@ public class MemberServiceTest {
 
         // when
         PrevStudyException exception =
-                assertThrows(PrevStudyException.class, () -> memberService.signup(memberAddRequest));
+                assertThrows(PrevStudyException.class, () -> memberService.signup(signupRequest));
 
         // then
         assertAll(
@@ -63,7 +61,7 @@ public class MemberServiceTest {
     @DisplayName("회원_가입_성공")
     void 회원_가입_성공() {
         // given
-        MemberAddRequest memberAddRequest = new MemberAddRequest("회원", "비밀번호");
+        SignupRequest signupRequest = new SignupRequest("회원", "비밀번호", false);
         Member newMember = Member.builder()
                 .id(1L)
                 .username("회원")
@@ -73,7 +71,7 @@ public class MemberServiceTest {
         when(memberRepository.save(ArgumentMatchers.any(Member.class))).thenReturn(newMember);
 
         // when, then
-        assertDoesNotThrow(() -> memberService.signup(memberAddRequest));
+        assertDoesNotThrow(() -> memberService.signup(signupRequest));
     }
 
     @Test

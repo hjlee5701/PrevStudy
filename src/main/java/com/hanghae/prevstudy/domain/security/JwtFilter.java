@@ -1,6 +1,8 @@
 package com.hanghae.prevstudy.domain.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae.prevstudy.domain.security.service.TokenProvider;
+import com.hanghae.prevstudy.global.exception.JwtValidationException;
 import com.hanghae.prevstudy.global.response.ApiResponse;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
