@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
@@ -238,7 +239,7 @@ public class BoardServiceTest {
 
         // when
         PrevStudyException exception = assertThrows(PrevStudyException.class,
-                () -> boardService.delete(1L, null));
+                () -> boardService.delete(1L, Mockito.any()));
 
         // then
         assertThat("게시글이 존재하지 않습니다.").isEqualTo(exception.getMessage());

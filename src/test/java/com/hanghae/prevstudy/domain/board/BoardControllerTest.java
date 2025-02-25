@@ -98,6 +98,7 @@ public class BoardControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @DisplayName("게시글_생성_요청값_에러")
     void 게시글_생성_요청값_에러() throws Exception {
         // given, when
         ResultActions blankTitle = executeAddBoard("", "작성자", "내용", "비밀번호");
