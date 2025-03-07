@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -38,10 +38,10 @@ public class Board {
     private List<Comment> comments = new ArrayList<>();
 
     @CreationTimestamp
-    private Date regAt;
+    private LocalDateTime regAt;
 
     @UpdateTimestamp
-    private Date modAt;
+    private LocalDateTime modAt;
 
     public void update(String title, String content) {
         this.title = title;
