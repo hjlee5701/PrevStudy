@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -136,7 +137,7 @@ public class BoardRepositoryTest {
         Board boardUpdateBoard = boardRepository.findById(requestBoardId).orElse(null);
         assertThat(boardUpdateBoard).isNotNull();
 
-        Date beforeUpdateAt = boardUpdateBoard.getModAt();
+        LocalDateTime beforeUpdateAt = boardUpdateBoard.getModAt();
 
         assertThat(beforeUpdateAt).isEqualTo(boardUpdateBoard.getRegAt()); // 최초 등록시간과 동일한지 확인
 
