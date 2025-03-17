@@ -21,6 +21,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -51,8 +52,9 @@ public class BoardServiceTest {
                 .build();
         Member referencedMember = Member.builder().id(authMemberDto.getId()).username(authMemberDto.getUsername()).build();
 
+        LocalDateTime now = LocalDateTime.now();
         Board newBoard
-                = new Board(1L, "제목", referencedMember, "내용", "비밀번호", null, new Date(), new Date());
+                = new Board(1L, "제목", referencedMember, "내용", "비밀번호", null, now, now);
 
         BDDMockito.given(memberRepository.getReferenceById(anyLong())).willReturn(referencedMember);
         BDDMockito.given(boardRepository.save(any(Board.class))).willReturn(newBoard);
@@ -87,8 +89,9 @@ public class BoardServiceTest {
     @DisplayName("게시글_작성자_불일치로_상세_조회_실패")
     void 게시글_작성자_불일치로_상세_조회_실패() {
         // given
+        LocalDateTime now = LocalDateTime.now();
         Board findBoard
-                = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, new Date(), new Date());
+                = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, now, now);
 
         when(boardRepository.findById(anyLong())).thenReturn(Optional.of(findBoard));
 
@@ -108,10 +111,10 @@ public class BoardServiceTest {
     @DisplayName("게시글_상세_조회_성공")
     void 게시글_상세_조회_성공() {
         // given
-        Date now = new Date();
         Comment comment1 = createComment();
         Comment comment2 = createComment();
         Member writer = Member.builder().id(1L).username("test").build();
+        LocalDateTime now = LocalDateTime.now();
         Board savedBoard
                 = new Board(1L, "제목", writer, "내용", "비밀번호", List.of(comment1, comment2), now, now);
 
@@ -134,7 +137,7 @@ public class BoardServiceTest {
     void 게시글_전체_조회_성공() {
         // given
         Comment comment1 = createComment();
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         Board findBoard1
                 = new Board(1L, "제목", Member.builder().username("tester1").build(), "내용", "비밀번호", List.of(comment1), now, now);
         Board findBoard2
@@ -169,7 +172,7 @@ public class BoardServiceTest {
     @DisplayName("게시글 수정 실패 - 작성자 불일치")
     void 게시글_작성자_불일치로_수정_실패() {
         // given
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", "비밀번호2");
@@ -189,7 +192,7 @@ public class BoardServiceTest {
     @DisplayName("게시글 수정 실패 - 비밀번호 불일치")
     void 게시글_비밀번호_불일치() {
         // given
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", "비밀번호2");
@@ -210,7 +213,7 @@ public class BoardServiceTest {
     @DisplayName("게시글 수정 성공")
     void 게시글_수정_성공() {
         // given
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         Board beforeUpdateBoard = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", beforeUpdateBoard.getPassword());
@@ -252,7 +255,7 @@ public class BoardServiceTest {
     @DisplayName("게시글 삭제 실패 - 작성자 불일치")
     void 게시글_작성자_불일치로_삭제_실패() {
         // given
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, now, now);
 
         BDDMockito.given(boardRepository.findById(anyLong())).willReturn(Optional.of(board));
@@ -270,7 +273,7 @@ public class BoardServiceTest {
     @DisplayName("게시글_삭제_성공")
     void 게시글_삭제_성공() {
         // given
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호", null, now, now);
         Long deleteBoard = board.getId();
         doReturn(Optional.of(board)).when(boardRepository).findById(any(Long.class));
@@ -305,7 +308,7 @@ public class BoardServiceTest {
     @DisplayName("관리자의_게시글_수정_성공")
     void 관리자의_게시글_수정_성공() {
         // given
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         Board beforeUpdateBoard = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호",null, now, now);
 
         BoardUpdateRequest boardUpdateRequest = new BoardUpdateRequest("제목2", "내용2", beforeUpdateBoard.getPassword());
@@ -329,7 +332,7 @@ public class BoardServiceTest {
     @DisplayName("관리자의_게시글_삭제_성공")
     void 관리자의_게시글_삭제_성공() {
         // given
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         Board board = new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호",null, now, now);
         Long deleteBoard = board.getId();
         doReturn(Optional.of(board)).when(boardRepository).findById(any(Long.class));
@@ -343,7 +346,7 @@ public class BoardServiceTest {
 
 
     private Board createMemberBoard() {
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         return new Board(1L, "제목", Member.builder().id(1L).build(), "내용", "비밀번호",null, now, now);
     }
 

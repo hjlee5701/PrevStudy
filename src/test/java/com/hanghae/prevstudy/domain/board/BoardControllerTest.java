@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -66,15 +67,15 @@ public class BoardControllerTest extends AbstractControllerTest {
     @Test
     @DisplayName("게시글_생성")
     void 게시글_생성() throws Exception {
-
         // given
+        LocalDateTime now = LocalDateTime.now();
         BoardResponse boardResponse = BoardResponse.builder()
                 .boardId(1L)
                 .title("더미 제목")
                 .writer("더미 작성자")
                 .content("더미 내용")
-                .regAt(new Date())
-                .modAt(new Date())
+                .regAt(now)
+                .modAt(now)
                 .build();
 
         BDDMockito.given(boardService.add(any(BoardAddRequest.class), Mockito.any()))
@@ -151,10 +152,11 @@ public class BoardControllerTest extends AbstractControllerTest {
     @DisplayName("게시글_전체_조회_성공")
     void 게시글_전체_조회_성공() throws Exception {
         // given
+        LocalDateTime now = LocalDateTime.now();
         List<CommentResponse> commentResponses
                 = List.of(new CommentResponse(1L, "tester", "내용"));
         List<BoardResponse> boardResponses
-                = List.of(new BoardResponse(1L, "", "", "", new Date(), new Date(), commentResponses));
+                = List.of(new BoardResponse(1L, "", "", "", now, now, commentResponses));
 
         doReturn(boardResponses).when(boardService).getBoards();
 
@@ -215,13 +217,14 @@ public class BoardControllerTest extends AbstractControllerTest {
     @DisplayName("게시글_수정_성공")
     void 게시글_수정_성공() throws Exception {
         // given
+        LocalDateTime now = LocalDateTime.now();
         BoardResponse boardResponse = BoardResponse.builder()
                 .boardId(1L)
                 .title("더미 제목")
                 .writer("더미 작성자")
                 .content("더미 내용")
-                .regAt(new Date())
-                .modAt(new Date())
+                .regAt(now)
+                .modAt(now)
                 .build();
 
         BDDMockito.given(boardService.update(any(Long.class), any(BoardUpdateRequest.class), Mockito.any()))

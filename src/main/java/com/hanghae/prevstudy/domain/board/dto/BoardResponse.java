@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -17,8 +17,8 @@ public class BoardResponse {
     private final String title;
     private final String writer;
     private final String content;
-    private final Date regAt;
-    private final Date modAt;
+    private final LocalDateTime regAt;
+    private final LocalDateTime modAt;
 
     private final List<CommentResponse> comment;
 }
