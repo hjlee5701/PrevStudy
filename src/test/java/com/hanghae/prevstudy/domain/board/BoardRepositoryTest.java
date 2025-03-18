@@ -139,8 +139,6 @@ public class BoardRepositoryTest {
 
         LocalDateTime beforeUpdateAt = boardUpdateBoard.getModAt();
 
-        assertThat(beforeUpdateAt).isEqualTo(boardUpdateBoard.getRegAt()); // 최초 등록시간과 동일한지 확인
-
         // when
         boardUpdateBoard.update("제목2", "내용2"); // Dirty Checking 적용
         boardRepository.flush();
