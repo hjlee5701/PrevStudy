@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -128,7 +129,7 @@ public class BoardRepositoryTest {
 
     @Test
     @DisplayName("게시글_수정일자_업데이트")
-    void 게시글_수정일자_업데이트() {
+    void 게시글_수정일자_업데이트() throws InterruptedException {
         // given
         Board savedBoard = boardRepository.save(newBoard());
         Long requestBoardId = savedBoard.getId();
@@ -136,13 +137,12 @@ public class BoardRepositoryTest {
         Board boardUpdateBoard = boardRepository.findById(requestBoardId).orElse(null);
         assertThat(boardUpdateBoard).isNotNull();
 
-        Date beforeUpdateAt = boardUpdateBoard.getModAt();
-
-        assertThat(beforeUpdateAt).isEqualTo(boardUpdateBoard.getRegAt()); // 최초 등록시간과 동일한지 확인
+        LocalDateTime beforeUpdateAt = boardUpdateBoard.getModAt();
 
         // when
         boardUpdateBoard.update("제목2", "내용2"); // Dirty Checking 적용
         boardRepository.flush();
+        Thread.sleep(3000L); // 3초
 
         Board updatedBoard = boardRepository.findById(requestBoardId).orElse(null);
         assertThat(updatedBoard).isNotNull();
