@@ -129,7 +129,7 @@ public class BoardRepositoryTest {
 
     @Test
     @DisplayName("게시글_수정일자_업데이트")
-    void 게시글_수정일자_업데이트() {
+    void 게시글_수정일자_업데이트() throws InterruptedException {
         // given
         Board savedBoard = boardRepository.save(newBoard());
         Long requestBoardId = savedBoard.getId();
@@ -144,6 +144,7 @@ public class BoardRepositoryTest {
         // when
         boardUpdateBoard.update("제목2", "내용2"); // Dirty Checking 적용
         boardRepository.flush();
+        Thread.sleep(3000L); // 3초
 
         Board updatedBoard = boardRepository.findById(requestBoardId).orElse(null);
         assertThat(updatedBoard).isNotNull();
